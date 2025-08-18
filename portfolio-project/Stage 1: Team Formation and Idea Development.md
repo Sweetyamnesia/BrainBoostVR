@@ -23,11 +23,21 @@
 - Preparatory research on VR for elderly patients  
 - Master’s thesis on VR for learning safety  
 
+**📚 Context & Preparatory Work:**  
+- **Exploratory Research:** Initial idea was to interview health professionals and video game designers to explore VR for seniors, aiming to promote intergenerational relationships and playful learning. Due to the scope of the master’s program, this step was not carried out.  
+- **Master’s Thesis:** Investigated transfer of learning between experts and non-experts in laser safety, comparing immersive VR experiences with practical laboratory work to assess effectiveness of skill transfer and safe practices.  
+- **Project Awareness & Inspiration:** Created a dedicated Instagram (for observation and idea tracking) page and followed VR companies to gather ideas, observe trends, and map potential users. A mindmap was also made to identify all target groups, which helped narrow the scope for the MVP.
+
+
 **🔍 Identified Problem:** Patients in cognitive or motor rehabilitation often lack motivating and engaging solutions. Traditional methods are monotonous, reducing adherence and effectiveness  
 
-**📝 Techniques Used:** Mindmapping, market research, following VR companies, creating personas for target users  
+**📝 Techniques Used:**  
+- Mindmapping of target users, stakeholders, and potential features  
+- Market research and social media observation  
+- Persona creation to understand needs and pain points  
+- Focused scope: restricted initial MVP to core exercises for healthcare professionals  
 
-**💭 Initial Idea:** Develop a VR application to support professionals and caregivers, including immersive exercises and a tracking dashboard  
+**💭 Initial Idea:** VR application to support professionals and caregivers in rehabilitation, with immersive exercises and progress tracking  
 
 ---
 
@@ -36,7 +46,7 @@
 
 **⚠️ Challenges & Risks:** Learning Unity and C#, integrating Firebase and Cloudinary, optimizing for standalone headsets, VR ergonomics, testing with users  
 
-**🎯 Target Prioritization:** Focus on healthcare facilities and professionals for the MVP  
+**🎯 Target Prioritization:** Healthcare facilities and professionals for MVP; restricted scope to core functionalities to ensure feasibility  
 
 ---
 
