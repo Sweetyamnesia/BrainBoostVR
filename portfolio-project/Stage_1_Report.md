@@ -1,5 +1,16 @@
 # 🧠 BrainBoostVR – Project Documentation
 
+## 📑 Table of Contents
+- [0️⃣ Team & Personal Background](#0️⃣-team--personal-background)
+- [1️⃣ Research & Ideation](#1️⃣-research--ideation)
+- [2️⃣ Idea Evaluation](#2️⃣-idea-evaluation)
+- [3️⃣ Decision & MVP Definition](#3️⃣-decision--mvp-definition)
+- [4️⃣ Documentation & Risks](#4️⃣-documentation--risks)
+  - [❌ Rejected Ideas](#-rejected-ideas)
+  - [⚠️ Risks and Mitigation](#-risks-and-mitigation)
+  - [📌 Core Features (MVP)](#-core-features-mvp)
+  - [⚡ MVP Scope Justification](#-mvp-scope-justification)
+
 ## 0️⃣ Team & Personal Background
 
 This section presents the personal and professional background behind the project, highlighting how previous experiences and skills are leveraged in the development of BrainBoostVR.  
