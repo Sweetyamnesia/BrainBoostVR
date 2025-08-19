@@ -85,7 +85,7 @@
 
 | Risk | Mitigation / Solution |
 |------|--------------------|
-| The user does not understand how to interact with the objects | Add visual and voice instructions at the start of the exercise, and possibly a short tutorial. |
+| The user does not understand how to interact with the objects | Add visual and voice instructions at the start of the exercise, and possibly a short tutorial or a pre-exercise tutorial window showing controls and interactions. |
 | Difficulty too high or too low for the user | Provide multiple difficulty levels and adjust the number of objects and allotted time. |
 | Bugs in scripts (validation, timer, score) | Test each feature separately before integrating; implement error logging in Unity. |
 | VR comfort issues (nausea, fatigue) | Limit abrupt movements, adjust exercise duration, and add breaks if necessary. |
@@ -101,3 +101,11 @@
 | Visual & audio sequence reproduction exercise | Medium | High | Medium | Medium | Encourages multi-sensory learning; requires additional scripts for sequence tracking and scoring. |
 | Multiple difficulty levels | High | Medium | High | High | Allows personalized progression and better adherence; feasible to implement with adjustable timers and object counts. |
 | Real-time feedback (score & voice guidance) | Medium | High | Medium | Medium | Improves engagement and motivation; requires integration of audio and scoring scripts. |
+| Tutorial / pre-exercise instruction | High | High | High | High | Ensures user understands VR interactions (controllers, teleportation, object manipulation); can reduce errors and frustration.|
+
+| Idea / Feature | Reason for Limited Implementation | Notes / Alternative |
+|----------------|---------------------------------|------------------|
+| Full web platform for users and professionals (dashboard, session history, tracking progress) | Scope too large for MVP | Implement only a minimal backend API to save and retrieve scores from VR exercises |
+| Notifications & offline mode | Adds complexity outside core VR exercises | Postpone to future versions |
+| Detailed analytics and visual reports | Requires advanced backend and UI | Keep basic API endpoints to allow score retrieval; detailed visualization can come later |
+| Terminal C prototype | Not directly relevant for VR-focused MVP | Kept as reference; demonstrates concept of user/session management |
