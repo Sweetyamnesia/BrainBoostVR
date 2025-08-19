@@ -83,7 +83,6 @@
 3. Real-time Firestore syncing best practices  
 4. Backend sufficiency for authentication, database, and media storage
 
-
 | Risk | Mitigation / Solution |
 |------|--------------------|
 | The user does not understand how to interact with the objects | Add visual and voice instructions at the start of the exercise, and possibly a short tutorial. |
@@ -91,3 +90,14 @@
 | Bugs in scripts (validation, timer, score) | Test each feature separately before integrating; implement error logging in Unity. |
 | VR comfort issues (nausea, fatigue) | Limit abrupt movements, adjust exercise duration, and add breaks if necessary. |
 | Difficulty remembering the sequence (visual and audio exercise) | Provide hints or repetitions; optionally allow slowing down the sequence. |
+| Score tracking problems (Firebase / Cloudinary issues) | Test integration early; implement temporary local saves before sending data. |
+| VR performance issues / lag on Quest 2 | Profile the scene, optimize assets, limit the number of objects displayed simultaneously. |
+| Accessibility / comfort for elderly users | Use high contrast, clear texts, intuitive controls, and test with users if possible. |
+
+
+| Feature / Exercise | Feasibility | Potential Impact | Technical Alignment | Scalability | Justification / Notes |
+|-------------------|------------|----------------|------------------|------------|--------------------|
+| Object placement memory exercise | High | High | Medium | Medium | Core exercise for cognitive training; feasible with basic Unity interactions and scoring system. |
+| Visual & audio sequence reproduction exercise | Medium | High | Medium | Medium | Encourages multi-sensory learning; requires additional scripts for sequence tracking and scoring. |
+| Multiple difficulty levels | High | Medium | High | High | Allows personalized progression and better adherence; feasible to implement with adjustable timers and object counts. |
+| Real-time feedback (score & voice guidance) | Medium | High | Medium | Medium | Improves engagement and motivation; requires integration of audio and scoring scripts. |
