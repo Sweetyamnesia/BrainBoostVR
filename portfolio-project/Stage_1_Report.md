@@ -1,6 +1,9 @@
 # 🧠 BrainBoostVR – Project Documentation
 
 ## 0️⃣ Team & Personal Background
+
+This section presents the personal and professional background behind the project, highlighting how previous experiences and skills are leveraged in the development of BrainBoostVR.  
+
 **Team:** Solo developer  
 **Roles:** Temporary Project Manager, Researcher, Designer, Developer, Tester  
 
@@ -14,11 +17,15 @@
 
 **🛠 Skills:** Pedagogy, UX/UI design, Unity, C# (in progress), web development, AI & NoCode, project management, video editing  
 
-**🌟 Interests & Motivation:** Virtual Reality, serious games, cognitive training, intergenerational learning, improving elderly health, making technology more accessible  
+**🌟 Interests & Motivation:**  
+Virtual Reality, serious games, cognitive training, intergenerational learning, improving elderly health, making technology more accessible  
 
 ---
 
 ## 1️⃣ Research & Ideation
+
+This part describes the preparatory work and inspiration that led to the creation of BrainBoostVR. It includes academic research, personal initiatives, and the identification of the problem the project aims to solve.  
+
 **💡 Sources of Inspiration:**  
 - Preparatory research on VR for elderly patients  
 - Master’s thesis on VR for learning safety  
@@ -26,10 +33,10 @@
 **📚 Context & Preparatory Work:**  
 - **Exploratory Research:** Initial idea was to interview health professionals and video game designers to explore VR for seniors, aiming to promote intergenerational relationships and playful learning. Due to the scope of the master’s program, this step was not carried out.  
 - **Master’s Thesis:** Investigated transfer of learning between experts and non-experts in laser safety, comparing immersive VR experiences with practical laboratory work to assess effectiveness of skill transfer and safe practices.  
-- **Project Awareness & Inspiration:** Created a dedicated Instagram (for observation and idea tracking) page and followed VR companies to gather ideas, observe trends, and map potential users. A mindmap was also made to identify all target groups, which helped narrow the scope for the MVP.
+- **Project Awareness & Inspiration:** Created a dedicated Instagram (for observation and idea tracking) page and followed VR companies to gather ideas, observe trends, and map potential users. A mindmap was also made to identify all target groups, which helped narrow the scope for the MVP.  
 
-
-**🔍 Identified Problem:** Patients in cognitive or motor rehabilitation often lack motivating and engaging solutions. Traditional methods are monotonous, reducing adherence and effectiveness  
+**🔍 Identified Problem:**  
+Patients in cognitive or motor rehabilitation often lack motivating and engaging solutions. Traditional methods are monotonous, reducing adherence and effectiveness.  
 
 **📝 Techniques Used:**  
 - Mindmapping of target users, stakeholders, and potential features  
@@ -37,23 +44,35 @@
 - Persona creation to understand needs and pain points  
 - Focused scope: restricted initial MVP to core exercises for healthcare professionals  
 
-**💭 Initial Idea:** VR application to support professionals and caregivers in rehabilitation, with immersive exercises and progress tracking  
+**💭 Initial Idea:**  
+VR application to support professionals and caregivers in rehabilitation, with immersive exercises and progress tracking.  
 
 ---
 
 ## 2️⃣ Idea Evaluation
-**📊 Evaluation Criteria:** Feasibility, potential impact, alignment with skills, user relevance  
 
-**⚠️ Challenges & Risks:** Learning Unity and C#, integrating Firebase and Cloudinary, optimizing for standalone headsets, VR ergonomics, testing with users  
+Once the initial idea was clarified, the next step was to evaluate its relevance and feasibility. This section presents the evaluation criteria, anticipated challenges, and decisions regarding the target audience for the MVP.  
 
-**🎯 Target Prioritization:** Healthcare facilities and professionals for MVP; restricted scope to core functionalities to ensure feasibility  
+**📊 Evaluation Criteria:**  
+Feasibility, potential impact, alignment with skills, user relevance  
+
+**⚠️ Challenges & Risks:**  
+Learning Unity and C#, integrating Firebase and Cloudinary, optimizing for standalone headsets, VR ergonomics, testing with users  
+
+**🎯 Target Prioritization:**  
+Healthcare facilities and professionals for MVP; restricted scope to core functionalities to ensure feasibility  
 
 ---
 
 ## 3️⃣ Decision & MVP Definition
-**🏷 Project Name:** BrainBoostVR  
 
-**📣 Pitch:** A VR application for cognitive and motor rehabilitation, providing immersive, interactive, and motivating exercises in a safe environment  
+After evaluating the different options, the decision was made to focus on a minimal viable product (MVP) that could showcase the potential of VR in rehabilitation while remaining technically achievable as a solo developer.  
+
+**🏷 Project Name:**  
+BrainBoostVR  
+
+**📣 Pitch:**  
+A VR application for cognitive and motor rehabilitation, providing immersive, interactive, and motivating exercises in a safe environment.  
 
 **🛠 MVP Features:**  
 - Basic VR navigation and interaction  
@@ -61,7 +80,8 @@
 - Simple progression in difficulty (easy → medium → hard)  
 - Basic tracking of scores or success indicators  
 
-**💻 Technical Stack:** Unity XR Interaction Toolkit, C#, Firebase (Authentication, Firestore), Cloudinary for media  
+**💻 Technical Stack:**  
+Unity XR Interaction Toolkit, C#, Firebase (Authentication, Firestore), Cloudinary for media  
 
 **🎯 Professional Benefits:**  
 - Enhances patient engagement and motivation  
@@ -71,17 +91,17 @@
 ---
 
 ## 4️⃣ Documentation & Risks
-**❌ Rejected Ideas:** Overly ambitious VR interactions, multi-user scenarios  
 
-**⚠️ Risks:** Unity/C# learning curve, Firebase integration, Quest 2 optimization, VR comfort and ergonomics  
+This section documents the rejected ideas, identified risks, and core features of the MVP. It also provides justifications for scope limitation to ensure the feasibility of the project.  
 
-**🗂 Organisation:** Self-directed learning, Trello for task tracking, MVP-first approach  
+### ❌ Rejected Ideas  
+Some initial ideas were discarded because they were too ambitious for an MVP. For instance, advanced multi-user features and overly complex VR interactions were set aside to maintain focus on a minimal but functional prototype.  
 
-**❓ Validation Questions:**  
-1. Firebase & Cloudinary integration with Unity  
-2. Oculus Quest 2 deployment options and constraints  
-3. Real-time Firestore syncing best practices  
-4. Backend sufficiency for authentication, database, and media storage
+---
+
+### ⚠️ Risks and Mitigation  
+The development of a VR rehabilitation application raises both **technical risks** (performance, backend integration, bugs) and **human-centered risks** (usability, accessibility, VR comfort).  
+The following table summarizes these risks and the planned solutions to mitigate them:  
 
 | Risk | Mitigation / Solution |
 |------|--------------------|
@@ -94,6 +114,11 @@
 | VR performance issues / lag on Quest 2 | Profile the scene, optimize assets, limit the number of objects displayed simultaneously. |
 | Accessibility / comfort for elderly users | Use high contrast, clear texts, intuitive controls, and test with users if possible. |
 
+---
+
+### 📌 Core Features (MVP)  
+The MVP is centered around **essential exercises** that demonstrate the potential of VR for cognitive training while remaining feasible for a solo project.  
+Each feature has been evaluated in terms of feasibility, impact, alignment with the technical stack, and scalability:  
 
 | Feature / Exercise | Feasibility | Potential Impact | Technical Alignment | Scalability | Justification / Notes |
 |-------------------|------------|----------------|------------------|------------|--------------------|
@@ -102,6 +127,13 @@
 | Multiple difficulty levels | High | Medium | High | High | Allows personalized progression and better adherence; feasible to implement with adjustable timers and object counts. |
 | Real-time feedback (score & voice guidance) | Medium | High | Medium | Medium | Improves engagement and motivation; requires integration of audio and scoring scripts. |
 | Tutorial / pre-exercise instruction | High | High | High | High | Ensures user understands VR interactions (controllers, teleportation, object manipulation); can reduce errors and frustration.|
+
+---
+
+### ⚡ MVP Scope Justification  
+Originally, the project aimed to include a full-fledged platform for both professionals and patients, with dashboards, session history, notifications, and analytics.  
+However, given the constraints, the MVP focuses on **core VR exercises and minimal backend features**.  
+The table below shows which ideas were reduced or postponed, and what alternatives were considered:  
 
 | Idea / Feature | Reason for Limited Implementation | Notes / Alternative |
 |----------------|---------------------------------|------------------|
