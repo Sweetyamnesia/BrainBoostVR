@@ -82,3 +82,12 @@
 2. Oculus Quest 2 deployment options and constraints  
 3. Real-time Firestore syncing best practices  
 4. Backend sufficiency for authentication, database, and media storage
+
+
+| Risk | Mitigation / Solution |
+|------|--------------------|
+| The user does not understand how to interact with the objects | Add visual and voice instructions at the start of the exercise, and possibly a short tutorial. |
+| Difficulty too high or too low for the user | Provide multiple difficulty levels and adjust the number of objects and allotted time. |
+| Bugs in scripts (validation, timer, score) | Test each feature separately before integrating; implement error logging in Unity. |
+| VR comfort issues (nausea, fatigue) | Limit abrupt movements, adjust exercise duration, and add breaks if necessary. |
+| Difficulty remembering the sequence (visual and audio exercise) | Provide hints or repetitions; optionally allow slowing down the sequence. |
