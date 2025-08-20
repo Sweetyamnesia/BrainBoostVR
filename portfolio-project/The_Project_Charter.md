@@ -28,7 +28,7 @@ The MVP will enable users to complete exercises that provide immediate feedback,
 ### Stakeholders
 
 - **Internal**:  
-  - You (VR Developer): Build VR exercises, implement C# scripts, integrate scoring system  
+  - Myself (VR Developer): Build VR exercises, implement C# scripts, integrate scoring system  
   - Tutors / Supervisors: Provide guidance, review progress, give feedback  
 
 - **External**:  
