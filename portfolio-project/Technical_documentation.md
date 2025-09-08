@@ -318,14 +318,12 @@ The **Custom API** is mandatory to handle communication between Unity and the SQ
 - **Version Control Tool**: Git (via GitHub or GitLab repository).  
 - **Branching Strategy**:  
   - `main` branch: Always contains stable and tested code.  
-  - `development` branch: Integrates completed features before merging to `main`.  
-  - `feature/*` branches: Created for individual tasks or features; merged into `development` after review.  
+  - `feature/*` branches: Created for individual tasks or experiments; merged into `main` after testing.  
 - **Commit Practices**:  
   - Regular commits with clear messages describing changes.  
   - Follow conventional commit standards (e.g., `feat:`, `fix:`, `docs:`).  
-- **Code Reviews**:  
-  - Pull requests required for merging `feature/*` branches into `development`.  
-  - Peer review to ensure code quality, readability, and adherence to project guidelines.
+- **Code Review**:  
+  - Not applicable (solo project), but self-review commits before merging to `main`.
 
 ---
 
