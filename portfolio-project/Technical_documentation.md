@@ -21,23 +21,23 @@ The MVP does not yet include fully developed UI screens, but the following sketc
 1. **Main Menu / Hub**  
    - Options: Start Exercise, Tutorial, Quit  
    - Display brief instructions for controller usage  
-   [Menu Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Menu.png)
+   ![Menu Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Menu.png)
 
 2. **Exercise Scene**  
    - Interactive objects in the VR environment  
    - Immediate visual and audio feedback for user actions  
    - Floating UI showing current score or progress (optional)  
-   [Exercise Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Time.png)
+   ![Exercise Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Time.png)
 
 3. **Tutorial Scene**  
    - Demonstrates VR interactions (grabbing objects, teleportation, camera rotation)  
    - Step-by-step instructions or highlights on controllers  
-   [Tutorial Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Tutorial.png)
+   ![Tutorial Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Tutorial.png)
 
 4. **End of Exercise**  
    - Summary of performance (score, correct/incorrect actions)  
    - Options: Restart, Main Menu, Exit  
-   [End Screen Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Final_Screen.png)
+   ![End Screen Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Final_Screen.png)
 
 ---
 
@@ -52,15 +52,16 @@ The MVP system consists of three main layers:
 
 - **Custom REST API**  
   - Manages communication between Unity and SQL database.  
-  - Optionally syncs with Firebase for score backup.  
-  - Supports endpoints for reading/writing scores, sessions, and metadata.
+  - Handles reading/writing scores, sessions, and metadata.  
+  - Verifies Firebase authentication tokens before granting access.  
 
 - **SQL Database**  
   - Stores users, scores, exercises, and session data in normalized tables.  
+  - Serves as the **main storage** for all application data.  
 
-- **Firebase Firestore (Optional Backup)**  
-  - Stores user scores and session data for redundancy and analytics.  
-  - Provides authentication services for the VR app.
+- **Firebase Authentication (External Service)**  
+  - Used **only for authentication** (login/logout).  
+  - Provides secure token-based authentication, but does **not** store session or score data.
 
 ## 4️⃣ Key Classes (Unity + API)
 
@@ -121,11 +122,15 @@ The MVP system consists of three main layers:
 actor User
 participant "Unity VR App" as Unity
 participant "Firebase Auth" as Firebase
+participant "Custom API" as API
 
 User -> Unity: Launches VR app
 Unity -> Firebase: Request authentication (email/password)
 Firebase -> Firebase: Validate credentials
 Firebase --> Unity: Return auth token (JWT)
+Unity -> API: Send auth token for verification
+API -> API: Validate token
+API --> Unity: Authentication confirmed
 Unity -> User: Displays "Authentication successful"
 @enduml
 ```
@@ -137,20 +142,18 @@ actor User
 participant "Unity VR App" as Unity
 participant "Custom API" as API
 participant "SQL Database" as DB
-participant "Firebase Firestore" as Firestore
 
 User -> Unity: Completes an exercise
-Unity -> API: POST /scores { userID, score }
+Unity -> API: POST /scores { userID, score, exerciseID }
+API -> API: Validate Firebase auth token
 API -> DB: INSERT score into database
 DB --> API: Score saved confirmation
-API -> Firestore: Sync score for backup
-Firestore --> API: Sync confirmation
 API --> Unity: Response 200 OK (Score saved)
 Unity -> User: Displays feedback and score saved message
 @enduml
 ```
 
-### Use Case 2 - View Performance History
+### Use Case 3 - View Performance History
 ```plantuml
 @startuml
 actor User
