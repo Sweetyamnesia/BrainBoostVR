@@ -311,3 +311,37 @@ The **Custom API** is mandatory to handle communication between Unity and the SQ
 | Sessions)  +--------+
 +--------+
 
+# 5️⃣ Plan SCM and QA Strategies
+
+## SCM (Source Code Management) Strategy
+
+- **Version Control Tool**: Git (via GitHub or GitLab repository).  
+- **Branching Strategy**:  
+  - `main` branch: Always contains stable and tested code.  
+  - `development` branch: Integrates completed features before merging to `main`.  
+  - `feature/*` branches: Created for individual tasks or features; merged into `development` after review.  
+- **Commit Practices**:  
+  - Regular commits with clear messages describing changes.  
+  - Follow conventional commit standards (e.g., `feat:`, `fix:`, `docs:`).  
+- **Code Reviews**:  
+  - Pull requests required for merging `feature/*` branches into `development`.  
+  - Peer review to ensure code quality, readability, and adherence to project guidelines.
+
+---
+
+## QA (Quality Assurance) Strategy
+
+- **Testing Strategy**:  
+  - Unit tests for key C# classes (e.g., `ExerciseManager`, `ScoreManager`).  
+  - Integration tests for API interactions between Unity and the Custom API / Firebase.  
+  - Manual testing for VR user flows to validate interactions, tutorial experience, and scoring display.  
+- **Testing Tools**:  
+  - Unity Test Framework for automated unit tests.  
+  - Postman for testing API endpoints.  
+  - Manual test cases documented in a spreadsheet or Notion board.  
+- **Deployment Pipeline**:  
+  - Staging builds deployed to Oculus Quest 2 for internal QA.  
+  - Production build for demo day or MVP release after QA approval.  
+- **Continuous Feedback**:  
+  - Log issues and bugs in GitHub Issues or a task management tool.  
+  - Regular testing after new features are integrated to prevent regressions.
