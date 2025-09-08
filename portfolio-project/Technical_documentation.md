@@ -221,7 +221,7 @@ Outlines testing and validation strategies to ensure a stable, high-quality MVP:
 
 ---
 
-# 1️⃣0️⃣ Technical Justifications
+# 1️0️ Technical Justifications
 
 Rationale for the technologies and design choices in BrainBoostVR:
 
