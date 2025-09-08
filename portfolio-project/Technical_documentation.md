@@ -18,26 +18,9 @@
 
 The MVP does not yet include fully developed UI screens, but the following sketches represent the **main interface and user flow in VR**:
 
-1. **Main Menu / Hub**  
-   - Options: Start Exercise, Tutorial, Quit  
-   - Display brief instructions for controller usage  
-   ![Menu Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Menu.png)
-
-2. **Exercise Scene**  
-   - Interactive objects in the VR environment  
-   - Immediate visual and audio feedback for user actions  
-   - Floating UI showing current score or progress (optional)  
-   ![Exercise Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Time.png)
-
-3. **Tutorial Scene**  
-   - Demonstrates VR interactions (grabbing objects, teleportation, camera rotation)  
-   - Step-by-step instructions or highlights on controllers  
-   ![Tutorial Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Tutorial.png)
-
-4. **End of Exercise**  
-   - Summary of performance (score, correct/incorrect actions)  
-   - Options: Restart, Main Menu, Exit  
-   ![End Screen Mockup](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Final_Screen.png)
+| Menu | Exercise | Tutorial | End Screen |
+|------|---------|----------|------------|
+| <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Menu.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Time.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Tutorial.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Final_Screen.png" width="250"/> |
 
 ---
 
@@ -186,14 +169,15 @@ Unity -> User: Displays performance stats and history
 @enduml
 ```
 
-8️⃣ API Specifications
-8.1 External Service: Firebase Authentication 
+# 8️⃣ API Specifications
+
+## 8.1 External Service: Firebase Authentication 
 
 - Handles `secure authentication` only.
 - Returns a `JWT token`.
 - Token is sent in the `Authorization` header when calling the Custom API.
 
-8.2 Custom REST API (SQL Storage)
+## 8.2 Custom REST API (SQL Storage)
 
 | Endpoint    | Method | Input Example                                           | Output Example                                        | Description                                |
 | ----------- | ------ | ------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------ |
