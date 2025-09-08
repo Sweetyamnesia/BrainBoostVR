@@ -216,5 +216,5 @@ Unity -> User: Displays performance stats and history
 - **Firebase**: Provides secure authentication and scalable real-time storage for scores  
 - **Custom API**: Ensures separation between VR front-end and backend; allows SQL storage with optional Firebase sync  
 - **SQL Database**: Structured storage of users, scores, and sessions; ensures data integrity and easy querying  
-- **Wireframes (Figma)**: Useful to visualize VR UI layout without building full scenes, improving planning and communication  
+- **Wireframes / Mockups**: Used to visualize the VR UI layout before implementation, improving planning and communication. 
 - **SCM & QA**: Git ensures version control and historical tracking; unit/integration/manual tests maintain quality and smooth user experience
