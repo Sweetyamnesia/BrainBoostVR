@@ -48,42 +48,59 @@ The MVP does not yet include fully developed UI screens, but the following sketc
 The MVP system consists of three main layers:
 
 - **VR Front-End (Unity + C#)**  
-  - Handles VR interactions, exercises, tutorials, and local scoring.  
+  - Handles VR interactions, tutorials, scoring UI, and communication with API.
 
-- **Custom REST API**  
-  - Manages communication between Unity and SQL database.  
-  - Handles reading/writing scores, sessions, and metadata.  
-  - Verifies Firebase authentication tokens before granting access.  
+- **Custom REST API (Node.js / .NET)**  
+  - Validates Firebase authentication tokens. 
+  -  Manages reading/writing scores and sessions into SQL.
 
-- **SQL Database**  
-  - Stores users, scores, exercises, and session data in normalized tables.  
-  - Serves as the **main storage** for all application data.  
+- **SQL Database (PostgreSQL / MySQL)**  
+  - Stores users, scores, exercises, and sessions in normalized tables.  
 
-- **Firebase Authentication (External Service)**  
-  - Used **only for authentication** (login/logout).  
-  - Provides secure token-based authentication, but does **not** store session or score data.
+- **Firebase Authentication**  
+  - Handles **secure login & registration**.  
+  - Only provides **JWT tokens**, no score storage.
+
+### 3.2 Architecture Diagram
+```scss
+   [ Oculus Quest 2 ]
+          │
+          ▼
+   [ Unity VR App ]
+          │
+          ▼
+   ┌─────────────┐        ┌───────────────┐
+   │ Firebase    │        │  Custom REST  │
+   │ Auth        │<──────>│   API Server  │
+   └─────────────┘        │ (Express/.NET)│
+          │                │              │
+          ▼                ▼              │
+     [ Auth Token ]   [ SQL Database ]    │
+                        (Users, Scores,
+                        Sessions, Logs)
+```
 
 ## 4️⃣ Key Classes (Unity + API)
 
 ### 4.1 Unity (C#) Classes
 
-| Class Name       | Description                                | Key Attributes                            | Key Methods                                |
-|------------------|-------------------------------------------|------------------------------------------|--------------------------------------------|
-| `PlayerController` | Manages player movement & interactions.  | `playerID`, `position`, `controllerInput` | `MovePlayer()`, `GrabObject()`, `Teleport()` |
-| `ExerciseManager`  | Handles exercises & cognitive tasks.    | `exerciseID`, `difficulty`, `currentScore` | `StartExercise()`, `ValidateAnswer()`, `EndExercise()` |
-| `ScoreManager`     | Manages scoring & feedback system.      | `currentScore`, `maxScore`              | `UpdateScore()`, `ShowFeedback()`, `ResetScore()` |
-| `UIManager`        | Controls VR menu navigation & HUD.      | `menuPanels`, `tutorialUI`              | `ShowMainMenu()`, `ShowScorePanel()`, `ToggleTutorial()` |
-| `ApiClient`        | Handles requests to the custom API.    | `baseUrl`, `authToken`                  | `PostScore()`, `GetScores()`, `HandleError()` |
+| Class Name         | Description                         | Key Attributes             | Key Methods                                              |
+| ------------------ | ----------------------------------- | -------------------------- | -------------------------------------------------------- |
+| `PlayerController` | Handles VR movement & interactions. | `playerID`, `position`     | `MovePlayer()`, `GrabObject()`, `Teleport()`             |
+| `ExerciseManager`  | Manages cognitive exercises.        | `exerciseID`, `difficulty` | `StartExercise()`, `ValidateAnswer()`, `EndExercise()`   |
+| `ScoreManager`     | Manages scoring & feedback.         | `currentScore`, `maxScore` | `UpdateScore()`, `ShowFeedback()`, `ResetScore()`        |
+| `UIManager`        | Handles VR menus & HUD.             | `menuPanels`, `tutorialUI` | `ShowMainMenu()`, `ShowScorePanel()`, `ToggleTutorial()` |
+| `ApiClient`        | Communicates with REST API.         | `baseUrl`, `authToken`     | `PostScore()`, `GetScores()`, `HandleError()`            |
 
 ---
 
 ### 4.2 Custom API (Backend) Classes
 
-| Class Name     | Description                              | Key Attributes            | Key Methods              |
-|---------------|-----------------------------------------|--------------------------|-------------------------|
-| `User`        | Represents a registered VR user.        | `userID`, `email`        | `CreateUser()`, `GetUser()` |
-| `Score`       | Stores exercise results.                | `userID`, `exerciseID`, `score`, `timestamp` | `SaveScore()`, `GetScores()` |
-| `Session`     | Tracks user sessions.                    | `sessionID`, `startTime`, `endTime` | `StartSession()`, `EndSession()` |
+| Class Name | Description                   | Key Attributes          | Key Methods                      |
+| ---------- | ----------------------------- | ----------------------- | -------------------------------- |
+| `User`     | Represents a registered user. | `userID`, `email`       | `GetUser()`, `SyncUser()`        |
+| `Score`    | Stores exercise results.      | `scoreID`, `userID`     | `SaveScore()`, `GetScores()`     |
+| `Session`  | Tracks VR sessions.           | `sessionID`, `duration` | `StartSession()`, `EndSession()` |
 
 ---
 
@@ -91,17 +108,16 @@ The MVP system consists of three main layers:
 
 ### 5.1 Tables & Schema
 
-| Table Name | Columns | Notes |
-|------------|--------|-------|
-| `users`   | `userID` (PK), `email`, `createdAt` | Stores user accounts and registration date |
-| `scores`  | `scoreID` (PK), `userID` (FK), `exerciseID`, `score`, `timestamp` | Stores results of exercises |
-| `sessions`| `sessionID` (PK), `userID` (FK), `startTime`, `endTime`, `duration` | Stores session start/end times and duration |
+| Table Name | Columns                                                             | Notes                  |
+| ---------- | ------------------------------------------------------------------- | ---------------------- |
+| `users`    | `userID` (PK), `email`, `createdAt`                                 | Stores user data       |
+| `scores`   | `scoreID` (PK), `userID` (FK), `exerciseID`, `score`, `timestamp`   | Stores exercise scores |
+| `sessions` | `sessionID` (PK), `userID` (FK), `startTime`, `endTime`, `duration` | Stores VR session info |
 
 ### 5.2 Relationships
 
-- One `User` → Many `Scores` (1:N)  
-- One `User` → Many `Sessions` (1:N)  
-- `Scores` and `Sessions` reference `users.userID` as a foreign key  
+- One `User` → N Scores
+- One `User` → N Sessions
 
 ---
 
@@ -171,56 +187,42 @@ Unity -> User: Displays performance stats and history
 ```
 
 8️⃣ API Specifications
-8.1 External APIs
-| API                         | Purpose                                         | Notes                                                              |
-| --------------------------- | ----------------------------------------------- | ------------------------------------------------------------------ |
-| **Firebase Authentication** | Handle user accounts and login/logout securely  | Chosen for easy integration with Unity and secure token-based auth |
-| **Firebase Firestore**      | Store and retrieve user scores and session data | Real-time database, scalable, works well with VR app               |
+8.1 External Service: Firebase Authentication 
 
-8.2 Internal (Custom) API
-The Custom API handles communication between Unity and the SQL database, with optional syncing to Firebase.
+- Handles `secure authentication` only.
+- Returns a `JWT token`.
+- Token is sent in the `Authorization` header when calling the Custom API.
 
-API Endpoints Overview
-| Endpoint    | Method | Input                                                       | Output                                                                            | Description                                                      |
-| ----------- | ------ | ----------------------------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `/login`    | POST   | `{ "email": "...", "password": "..." }`                     | `{ "authToken": "...", "userID": "..." }`                                         | Authenticate user and start session                              |
-| `/scores`   | POST   | `{ "userID": "...", "exerciseID": "...", "score": 85 }`     | `{ "status": "success" }`                                                         | Save exercise score to SQL database; optionally sync to Firebase |
-| `/scores`   | GET    | `{ "userID": "..." }`                                       | `{ "scores": [ { "exerciseID": "...", "score": 85, "timestamp": "..." }, ... ] }` | Retrieve all scores for a specific user                          |
-| `/sessions` | POST   | `{ "userID": "...", "startTime": "...", "endTime": "..." }` | `{ "status": "success" }`                                                         | Log user session duration                                        |
-| `/users`    | GET    | `{ "userID": "..." }`                                       | `{ "userID": "...", "email": "...", "createdAt": "..." }`                         | Retrieve user profile information                                |
+8.2 Custom REST API (SQL Storage)
+
+| Endpoint    | Method | Input Example                                           | Output Example                                        | Description                                |
+| ----------- | ------ | ------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------ |
+| `/login`    | POST   | `{ "email": "user@test.com", "password": "1234" }`      | `{ "authToken": "...", "userID": 1 }`                 | Authenticates with Firebase, returns token |
+| `/scores`   | POST   | `{ "userID": 1, "exerciseID": 5, "score": 85 }`         | `{ "status": "success" }`                             | Saves exercise score in SQL                |
+| `/scores`   | GET    | `/scores?userID=1`                                      | `{ "scores": [ ... ] }`                               | Fetches user's scores                      |
+| `/sessions` | POST   | `{ "userID": 1, "startTime": "...", "endTime": "..." }` | `{ "status": "success" }`                             | Saves session info                         |
+| `/users`    | GET    | `/users?userID=1`                                       | `{ "userID": 1, "email": "...", "createdAt": "..." }` | Returns user profile                       |
 
 # 9️⃣ Plan SCM and QA Strategies
 
-## 9.1 SCM (Source Code Management) Strategy
+## 9.1 Source Code Management
 
-- **Version Control Tool**: Git (via GitHub or GitLab repository)  
-- **Branching Strategy**:  
-  - `main` branch: Always contains stable and tested code  
-  - `feature/*` branches: Created for individual tasks or features; merged into `main` after testing  
-- **Commit Practices**:  
-  - Regular commits with clear messages describing changes  
-  - Follow conventional commit standards (e.g., `feat:`, `fix:`, `docs:`)  
-- **Code Review**:  
-  - Self-review commits before merging to `main` (solo project)
-
+- **Tool**: Git (GitHub)  
+- **Branching**:  
+  - `main` -> stable
+  - `feature/*` -> per feature
+- **Commit**: Conventional commit (`feat:`, `fix:`, `docs:`)  
 ---
 
 ## 9.2 QA (Quality Assurance) Strategy
 
-- **Testing Strategy**:  
-  - Unit tests for key C# classes (e.g., `ExerciseManager`, `ScoreManager`)  
-  - Integration tests for API interactions between Unity and Custom API / Firebase  
-  - Manual testing for VR user flows to validate interactions, tutorial experience, and scoring display
-- **Testing Tools**:  
-  - Unity Test Framework for automated unit tests  
-  - Postman for API endpoint testing  
-  - Manual test cases documented in a spreadsheet or Notion board
+- **Testing**:  
+  - **Unit tests**: C# (Unity Test Framework)  
+  - **Integration tests:** Postman for API
+  - **VR Manual tests** on Oculus Quest 2
 - **Deployment Pipeline**:  
-  - Staging builds deployed to Oculus Quest 2 for internal QA  
-  - Production build for demo day or MVP release after QA approval
-- **Continuous Feedback**:  
-  - Log issues and bugs in GitHub Issues or a task management tool  
-  - Regular testing after new features are integrated to prevent regressions
+  - Staging builds for QA  
+  - Production build after approval
 
 ---
 
