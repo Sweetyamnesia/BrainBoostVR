@@ -1,5 +1,30 @@
 # BrainBoostVR – Technical Documentation
 
+# Table of Contents
+
+1. [User Stories](#1️⃣-user-stories)
+2. [Mockups / Interface Overview](#2️⃣-mockups--interface-overview)
+3. [System Architecture Overview](#3️⃣-system-architecture-overview)
+    - [Components Overview](#31-components-overview)
+    - [Architecture Diagram](#32-architecture-diagram)
+4. [Key Classes (Unity + API)](#4️⃣-key-classes-unity--api)
+    - [Unity (C#) Classes](#41-unity-c-classes)
+    - [Custom API (Backend) Classes](#42-custom-api-backend-classes)
+5. [Database Design (SQL)](#5️⃣-database-design-sql)
+    - [Tables & Schema](#51-tables--schema)
+    - [Relationships](#52-relationships)
+    - [Entity-Relationship Diagram (ERD)](#53-entity-relationship-diagram-erd)
+6. [VR UI Components](#6️⃣-vr-ui-components)
+7. [Sequence Diagrams](#7️⃣-sequence-diagrams)
+8. [API Specifications](#8️⃣-api-specifications)
+    - [External Service: Firebase Authentication](#81-external-service-firebase-authentication)
+    - [Custom REST API (SQL Storage)](#82-custom-rest-api-sql-storage)
+9. [Plan SCM and QA Strategies](#9️⃣-plan-scm-and-qa-strategies)
+    - [Source Code Management](#91-source-code-management)
+    - [QA (Quality Assurance) Strategy](#92-qa-quality-assurance-strategy)
+10. [Technical Justifications](#technical-justifications)
+
+
 ## 1️⃣ User Stories
 
 | User Story | Priority (MoSCoW) | Notes |
