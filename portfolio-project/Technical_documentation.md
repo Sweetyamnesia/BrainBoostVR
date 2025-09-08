@@ -27,7 +27,7 @@
 
 ## 1️⃣ User Stories
 
-This section lists the prioritized user stories for BrainBoostVR, capturing the main actions and goals of users interacting with the VR environment.
+This section lists the prioritized user stories for BrainBoostVR, capturing the main actions and goals of users interacting with the VR environment. These stories help define the Minimum Viable Product (MVP) from a user perspective.
 
 | User Story | Priority (MoSCoW) | Notes |
 |------------|-----------------|-------|
@@ -43,7 +43,7 @@ This section lists the prioritized user stories for BrainBoostVR, capturing the 
 
 ## 2️⃣ Mockups / Interface Overview
 
-The following mockups illustrate the key interfaces and user flow within the VR application, helping visualize interactions before implementation.
+This section provides visual representations of the main interfaces in BrainBoostVR. The mockups help to understand the user flow and interaction patterns within the VR environment before full implementation.
 
 | Menu | Exercise | Tutorial | End Screen |
 |------|---------|----------|------------|
@@ -53,29 +53,25 @@ The following mockups illustrate the key interfaces and user flow within the VR 
 
 ## 3️⃣ System Architecture Overview
 
-This section describes the high-level architecture of BrainBoostVR, detailing the components, data flow, and interactions between front-end, back-end, database, and external services.
+This section describes the high-level architecture of BrainBoostVR, detailing the components, data flow, and interactions between front-end, back-end, database, and external services. Understanding the system architecture ensures scalability, maintainability, and clear responsibilities for each component.
 
 ### 3.1 Components Overview
 
-Overview of the main system components, highlighting their roles and responsibilities.
-
 - **VR Front-End (Unity + C#)**  
-  - Handles VR interactions, tutorials, scoring UI, and communication with API.
+  Handles VR interactions, tutorials, scoring UI, and communication with the backend API.
 
 - **Custom REST API (Node.js / .NET)**  
-  - Validates Firebase authentication tokens. 
-  -  Manages reading/writing scores and sessions into SQL.
+  Validates Firebase authentication tokens and manages reading/writing scores and sessions into SQL.
 
 - **SQL Database (PostgreSQL / MySQL)**  
-  - Stores users, scores, exercises, and sessions in normalized tables.  
+  Stores users, scores, exercises, and sessions in normalized tables.
 
 - **Firebase Authentication**  
-  - Handles **secure login & registration**.  
-  - Only provides **JWT tokens**, no score storage.
+  Provides secure login & registration via JWT tokens.
 
 ### 3.2 Architecture Diagram
 
-A visual representation of the BrainBoostVR architecture, showing how data flows between components.
+The following diagram visualizes the BrainBoostVR system, showing how data flows between components:
 
 ```scss
    [ Oculus Quest 2 ]
@@ -97,11 +93,9 @@ A visual representation of the BrainBoostVR architecture, showing how data flows
 
 ## 4️⃣ Key Classes (Unity + API)
 
-This section details the core classes in Unity and the Custom API, including attributes and methods that support the VR interactions, exercises, and data management.
+This section details the core classes used in Unity and the Custom API, including attributes and methods that support VR interactions, exercises, and data management.
 
 ### 4.1 Unity (C#) Classes
-
-Key classes responsible for handling VR mechanics, user interactions, scoring, and UI.
 
 | Class Name         | Description                         | Key Attributes             | Key Methods                                              |
 | ------------------ | ----------------------------------- | -------------------------- | -------------------------------------------------------- |
@@ -131,7 +125,7 @@ This section defines the database structure for BrainBoostVR, including tables, 
 
 ### 5.1 Tables & Schema
 
-Detailed description of the database tables and their attributes.
+Defines the database structure, including tables, columns, relationships, and the ER diagram for BrainBoostVR.
 
 | Table Name | Columns                                                             | Notes                  |
 | ---------- | ------------------------------------------------------------------- | ---------------------- |
@@ -141,21 +135,21 @@ Detailed description of the database tables and their attributes.
 
 ### 5.2 Relationships
 
-This section describes how the database tables relate to each other. It shows the cardinality and associations between entities in BrainBoostVR.
+The following describes the relationships between the tables:
 
 - One `User` → N `Scores`
 - One `User` → N `Sessions`
 
 ### 5.3 Entity-Relationship Diagram (ERD)
 
-The following diagram illustrates the relationships between tables in the BrainBoostVR database, showing primary keys, foreign keys, and the cardinality between entities.
+Visualizes primary keys, foreign keys, and cardinality between entities.
 
 ![ERD](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/ERD.png)
 ---
 
 ## 6️⃣ VR UI Components
 
-Overview of the VR user interface components and how users interact with them during the exercises.
+Provides an overview of the VR interface elements, showing how users interact with the system during exercises.
 
 | UI Component    | Description                     | Interactions                         |
 |-----------------|---------------------------------|-------------------------------------|
@@ -166,7 +160,7 @@ Overview of the VR user interface components and how users interact with them du
 
 # 7️⃣ Sequence Diagrams
 
-Sequence diagrams illustrating key interactions and use cases, including authentication, score saving, and performance retrieval.
+Illustrates key interactions and use cases in BrainBoostVR.
 
 ### Use Case 1 – User Authentication (Login)
 ![Usecase1](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Usecase1.png)
@@ -179,11 +173,9 @@ Sequence diagrams illustrating key interactions and use cases, including authent
 
 # 8️⃣ API Specifications
 
-Documentation of external and internal APIs used by BrainBoostVR, detailing endpoints, input/output, and purpose.
-
 ## 8.1 External Service: Firebase Authentication 
 
-This section describes the external service used for secure user authentication.
+Used for secure user authentication, providing JWT tokens for authorization in API requests.
 
 - Handles `secure authentication` only.
 - Returns a `JWT token`.
@@ -191,7 +183,7 @@ This section describes the external service used for secure user authentication.
 
 ## 8.2 Custom REST API (SQL Storage)
 
-Manages communication between Unity and SQL database, allowing scores and session data to be stored and retrieved.
+Handles storing and retrieving scores and session data between Unity and SQL database.
 
 | Endpoint    | Method | Input Example                                           | Output Example                                        | Description                                |
 | ----------- | ------ | ------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------ |
@@ -203,11 +195,9 @@ Manages communication between Unity and SQL database, allowing scores and sessio
 
 # 9️⃣ Plan SCM and QA Strategies
 
-Describes the source code management processes and quality assurance strategy to ensure reliable development and testing.
-
 ## 9.1 Source Code Management
 
-Describes the version control tools and branching strategy used to maintain code quality and track changes.
+Describes the version control tools and branching strategy used in the project:
 
 - **Tool**: Git (GitHub)  
 - **Branching**:  
@@ -218,7 +208,7 @@ Describes the version control tools and branching strategy used to maintain code
 
 ## 9.2 QA (Quality Assurance) Strategy
 
-Outlines the testing strategy to ensure the stability and functionality of the MVP.
+Outlines testing and validation strategies to ensure a stable, high-quality MVP:
 
 - **Testing**:  
   - **Unit tests**: C# (Unity Test Framework)  
@@ -231,9 +221,9 @@ Outlines the testing strategy to ensure the stability and functionality of the M
 
 ---
 
-# Technical Justifications
+# 1️⃣0️⃣ Technical Justifications
 
-Explains the rationale behind the chosen technologies and design decisions for BrainBoostVR.
+Rationale for the technologies and design choices in BrainBoostVR:
 
 - **Unity + C#**: Best suited for VR development; supports Oculus Quest 2 and XR Interaction Toolkit.
 - **Firebase**: Provides secure authentication via JWT tokens for user login and registration.
