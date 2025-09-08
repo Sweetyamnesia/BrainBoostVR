@@ -235,9 +235,9 @@ Outlines the testing strategy to ensure the stability and functionality of the M
 
 Explains the rationale behind the chosen technologies and design decisions for BrainBoostVR.
 
-- **Unity + C#**: Best suited for VR development; supports Oculus Quest 2 and XR Interaction Toolkit  
-- **Firebase**: Provides secure authentication and scalable real-time storage for scores  
-- **Custom API**: Ensures separation between VR front-end and backend; allows SQL storage with optional Firebase sync  
-- **SQL Database**: Structured storage of users, scores, and sessions; ensures data integrity and easy querying  
+- **Unity + C#**: Best suited for VR development; supports Oculus Quest 2 and XR Interaction Toolkit.
+- **Firebase**: Provides secure authentication via JWT tokens for user login and registration.
+- **Custom API**: Ensures separation between VR front-end and backend; allows SQL storage with optional Firebase sync.
+- **SQL Database**: Structured storage of users, scores, and sessions; ensures data integrity and easy querying.
 - **Wireframes / Mockups**: Used to visualize the VR UI layout before implementation, improving planning and communication. 
-- **SCM & QA**: Git ensures version control and historical tracking; unit/integration/manual tests maintain quality and smooth user experience
+- **SCM & QA**: Git ensures version control and historical tracking; unit/integration/manual tests maintain quality and smooth user experience.
