@@ -20,7 +20,7 @@ The MVP does not yet include fully developed UI screens, but the following sketc
 
 | Menu | Exercise | Tutorial | End Screen |
 |------|---------|----------|------------|
-| <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Menu.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Time.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Tutorial.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Final_Screen.png" width="250"/> |
+| <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Menu.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Time.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Tutorial.png" width="250"/> | <img src="https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Final_Screen.png" width="250"/> |
 
 ---
 
@@ -106,7 +106,7 @@ The MVP system consists of three main layers:
 
 The following diagram illustrates the relationships between tables in the BrainBoostVR database, showing primary keys, foreign keys, and the cardinality between entities.
 
-![ERD](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/ERD.png)
+![ERD](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/ERD.png)
 ---
 
 ## 6️⃣ VR UI Components
@@ -121,13 +121,13 @@ The following diagram illustrates the relationships between tables in the BrainB
 # 7️⃣ Sequence Diagrams
 
 ### Use Case 1 – User Authentication (Login)
-![Usecase1](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Usecase1.png)
+![Usecase1](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Usecase1.png)
 
 ### Use Case 2 - Save User Score
-![Usecase2](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Usecase2.png)
+![Usecase2](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Usecase2.png)
 
 ### Use Case 3 - View Performance History
-![Usecase3](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Usecase3.png)
+![Usecase3](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Usecase3.png)
 
 # 8️⃣ API Specifications
 
