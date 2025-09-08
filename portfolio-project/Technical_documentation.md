@@ -102,6 +102,11 @@ The MVP system consists of three main layers:
 - One `User` → N Scores
 - One `User` → N Sessions
 
+### 5.3 Entity-Relationship Diagram (ERD)
+
+The following diagram illustrates the relationships between tables in the BrainBoostVR database, showing primary keys, foreign keys, and the cardinality between entities.
+
+![ERD](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/ERD.png)
 ---
 
 ## 6️⃣ VR UI Components
@@ -116,58 +121,13 @@ The MVP system consists of three main layers:
 # 7️⃣ Sequence Diagrams
 
 ### Use Case 1 – User Authentication (Login)
-```plantuml
-@startuml
-actor User
-participant "Unity VR App" as Unity
-participant "Firebase Auth" as Firebase
-participant "Custom API" as API
-
-User -> Unity: Launches VR app
-Unity -> Firebase: Request authentication (email/password)
-Firebase -> Firebase: Validate credentials
-Firebase --> Unity: Return auth token (JWT)
-Unity -> API: Send auth token for verification
-API -> API: Validate token
-API --> Unity: Authentication confirmed
-Unity -> User: Displays "Authentication successful"
-@enduml
-```
+![Usecase1](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Usecase1.png)
 
 ### Use Case 2 - Save User Score
-```plantuml
-@startuml
-actor User
-participant "Unity VR App" as Unity
-participant "Custom API" as API
-participant "SQL Database" as DB
-
-User -> Unity: Completes an exercise
-Unity -> API: POST /scores { userID, score, exerciseID }
-API -> API: Validate Firebase auth token
-API -> DB: INSERT score into database
-DB --> API: Score saved confirmation
-API --> Unity: Response 200 OK (Score saved)
-Unity -> User: Displays feedback and score saved message
-@enduml
-```
+![Usecase2](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Usecase2.png)
 
 ### Use Case 3 - View Performance History
-```plantuml
-@startuml
-actor User
-participant "Unity VR App" as Unity
-participant "Custom API" as API
-participant "SQL Database" as DB
-
-User -> Unity: Opens "Performance" menu
-Unity -> API: GET /scores?userID=123
-API -> DB: SELECT scores for userID=123
-DB --> API: Returns list of scores
-API --> Unity: Sends scores data
-Unity -> User: Displays performance stats and history
-@enduml
-```
+![Usecase3](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/Usecase3.png)
 
 # 8️⃣ API Specifications
 
