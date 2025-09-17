@@ -8,4 +8,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BrainBoostVR.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  m_configObjects: {}
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 651b6df1251fd4a3d8a8c2e783c80a17,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 364af108245a54bfc9bffee0bc90e902,
+      type: 2}
