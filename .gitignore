@@ -19,3 +19,4 @@
 *.pidb.meta
 .DS_Store
 *.apk
+.fake
