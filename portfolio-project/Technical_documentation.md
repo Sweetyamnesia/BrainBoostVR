@@ -123,7 +123,7 @@ Classes managing users, scores, and sessions on the backend, ensuring data persi
 
 This section defines the database structure for BrainBoostVR, including tables, columns, relationships, and an ER diagram for visualization.
 
-
+```mermaid
 erDiagram
     USERS {
         int userID
@@ -154,7 +154,7 @@ erDiagram
     USERS ||--o{ SCORES : "has"
     USERS ||--o{ SESSIONS : "has"
     EXERCISES ||--o{ SCORES : "is scored in"
-
+```
 ---
 
 ## 6️⃣ VR UI Components
@@ -172,6 +172,7 @@ Provides an overview of the VR interface elements, showing how users interact wi
 
 Illustrates key interactions and use cases in BrainBoostVR.
 
+```mermaid
 sequenceDiagram
     participant User as Utilisateur
     participant UI as Interface VR
@@ -205,6 +206,7 @@ sequenceDiagram
         API-->>UI: 401 Unauthorized
         UI-->>User: Message "Connexion expirée, veuillez vous reconnecter"
     end
+```
 
 # 8️⃣ API Specifications
 
