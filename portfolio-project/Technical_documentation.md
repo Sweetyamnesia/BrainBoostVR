@@ -124,12 +124,14 @@ erDiagram
         string email
         string createdAt
     }
+    
     EXERCISES {
         int exerciseID
         string name
         string difficulty
         string description
     }
+    
     SCORES {
         int scoreID
         int userID
@@ -137,6 +139,7 @@ erDiagram
         int score
         string timestamp
     }
+    
     SESSIONS {
         int sessionID
         int userID
@@ -145,9 +148,10 @@ erDiagram
         int durationSeconds
     }
 
-    USERS ||--o{ SCORES : "has"
-    USERS ||--o{ SESSIONS : "has"
-    EXERCISES ||--o{ SCORES : "is scored in"
+    %% Relations
+    USERS ||--o{ SCORES : has
+    USERS ||--o{ SESSIONS : has
+    EXERCISES ||--o{ SCORES : is_scored_in
 ```
 ---
 
@@ -171,34 +175,55 @@ sequenceDiagram
     participant User as Utilisateur
     participant UI as Interface VR
     participant API as Backend
+    participant Firebase as Firebase Auth
     participant DB as Base de données
 
-    User->>UI: Cliquer sur "Voir mes scores"
-    UI->>API: GET /scores avec JWT token
-    API->>API: Vérifier validité du token
-    alt Token valide
-        API->>DB: Récupérer userID depuis token
-        DB-->>API: UserID trouvé
-        API->>DB: SELECT * FROM scores WHERE userID = ?
-        DB-->>API: Scores de l'utilisateur
-        API-->>UI: Retourner liste de scores
-        UI-->>User: Afficher scores
-    else Token invalide / expiré
+    %% =========================
+    %% Use Case 1: Login / Authentication
+    %% =========================
+    User->>UI: Ouvre l'application et saisit email/password
+    UI->>API: POST /login {email, password}
+    API->>Firebase: Vérifie credentials
+    alt Credentials valides
+        Firebase-->>API: Retourne JWT token
+        API-->>UI: Retourne authToken (JWT)
+        UI-->>User: "Authentication successful"
+    else Credentials invalides
+        Firebase-->>API: Erreur
         API-->>UI: 401 Unauthorized
-        UI-->>User: Message "Connexion expirée, veuillez vous reconnecter"
+        UI-->>User: "Email ou mot de passe incorrect"
     end
 
-    User->>UI: Cliquer sur "Mon profil"
-    UI->>API: GET /users avec JWT
-    API->>API: Vérifier validité du token
+    %% =========================
+    %% Use Case 2: Completes an exercise
+    %% =========================
+    User->>UI: Termine un exercice et clique sur "Soumettre score"
+    UI->>API: POST /scores {exerciseID, score} + JWT
+    API->>API: Vérifie validité du JWT
     alt Token valide
-        API->>DB: Récupérer userID depuis token
-        DB-->>API: User trouvé
-        API-->>UI: Retourner infos utilisateur
-        UI-->>User: Afficher profil
+        API->>DB: INSERT INTO scores (userID from token, exerciseID, score)
+        DB-->>API: Confirmation score inséré
+        API-->>UI: 200 OK, "Score saved"
+        UI-->>User: Affiche feedback et confirmation
     else Token invalide / expiré
         API-->>UI: 401 Unauthorized
-        UI-->>User: Message "Connexion expirée, veuillez vous reconnecter"
+        UI-->>User: "Connexion expirée, veuillez vous reconnecter"
+    end
+
+    %% =========================
+    %% Use Case 3: View performance / scores
+    %% =========================
+    User->>UI: Ouvre le menu "Performance"
+    UI->>API: GET /scores + JWT
+    API->>API: Vérifie validité du JWT
+    alt Token valide
+        API->>DB: SELECT * FROM scores WHERE userID = ?
+        DB-->>API: Liste des scores
+        API-->>UI: Retourne scores
+        UI-->>User: Affiche statistiques et historique
+    else Token invalide / expiré
+        API-->>UI: 401 Unauthorized
+        UI-->>User: "Connexion expirée, veuillez vous reconnecter"
     end
 ```
 
