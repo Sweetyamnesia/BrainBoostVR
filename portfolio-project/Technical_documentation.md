@@ -73,22 +73,16 @@ This section describes the high-level architecture of BrainBoostVR, detailing th
 
 The following diagram visualizes the BrainBoostVR system, showing how data flows between components:
 
-```scss
-      [ Oculus Quest 2 ]
-          │
-          ▼
-   [ Unity VR App ]
-          │
-          ▼
-   ┌─────────────┐        ┌───────────────┐
-   │ Firebase    │        │  Custom REST  │
-   │ Auth        │<──────>│   API Server  │
-   └─────────────┘        │   (.NET)      │
-          │                │              │
-          ▼                ▼              │
-     [ Auth Token ]   [ SQL Database ]    │
-                        (users, scores,
-                        exercises, sessions, logs)
+```mermaid
+graph TD
+  A[Oculus Quest 2] --> B[Unity VR App]
+  B --> C[Custom REST API - Express or DotNet]
+  C <--> D[Firebase Auth]
+  C <--> DB[(SQL Database)]
+  DB --- U[users]
+  DB --- X[exercises]
+  DB --- S[scores]
+  DB --- SE[sessions]
 ```
 
 ## 4️⃣ Key Classes (Unity + API)
