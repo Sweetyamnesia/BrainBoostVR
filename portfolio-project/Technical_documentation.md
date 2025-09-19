@@ -74,7 +74,7 @@ This section describes the high-level architecture of BrainBoostVR, detailing th
 The following diagram visualizes the BrainBoostVR system, showing how data flows between components:
 
 ```scss
-   [ Oculus Quest 2 ]
+      [ Oculus Quest 2 ]
           │
           ▼
    [ Unity VR App ]
@@ -83,12 +83,12 @@ The following diagram visualizes the BrainBoostVR system, showing how data flows
    ┌─────────────┐        ┌───────────────┐
    │ Firebase    │        │  Custom REST  │
    │ Auth        │<──────>│   API Server  │
-   └─────────────┘        │ (Express/.NET)│
+   └─────────────┘        │   (.NET)      │
           │                │              │
           ▼                ▼              │
      [ Auth Token ]   [ SQL Database ]    │
-                        (Users, Scores,
-                        Sessions, Logs)
+                        (users, scores,
+                        exercises, sessions, logs)
 ```
 
 ## 4️⃣ Key Classes (Unity + API)
@@ -123,28 +123,38 @@ Classes managing users, scores, and sessions on the backend, ensuring data persi
 
 This section defines the database structure for BrainBoostVR, including tables, columns, relationships, and an ER diagram for visualization.
 
-### 5.1 Tables & Schema
+```mermaid
+erDiagram
+    USERS {
+        int userID
+        string email
+        string createdAt
+    }
+    EXERCISES {
+        int exerciseID
+        string name
+        string difficulty
+        string description
+    }
+    SCORES {
+        int scoreID
+        int userID
+        int exerciseID
+        int score
+        string timestamp
+    }
+    SESSIONS {
+        int sessionID
+        int userID
+        string startTime
+        string endTime
+        int durationSeconds
+    }
 
-Defines the database structure, including tables, columns, relationships, and the ER diagram for BrainBoostVR.
-
-| Table Name | Columns                                                             | Notes                  |
-| ---------- | ------------------------------------------------------------------- | ---------------------- |
-| `users`    | `userID` (PK), `email`, `createdAt`                                 | Stores user data       |
-| `scores`   | `scoreID` (PK), `userID` (FK), `exerciseID`, `score`, `timestamp`   | Stores exercise scores |
-| `sessions` | `sessionID` (PK), `userID` (FK), `startTime`, `endTime`, `duration` | Stores VR session info |
-
-### 5.2 Relationships
-
-The following describes the relationships between the tables:
-
-- One `User` → N `Scores`
-- One `User` → N `Sessions`
-
-### 5.3 Entity-Relationship Diagram (ERD)
-
-Visualizes primary keys, foreign keys, and cardinality between entities.
-
-![ERD](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/ERD.png)
+    USERS ||--o{ SCORES : "has"
+    USERS ||--o{ SESSIONS : "has"
+    EXERCISES ||--o{ SCORES : "is scored in"
+```
 ---
 
 ## 6️⃣ VR UI Components
@@ -162,14 +172,41 @@ Provides an overview of the VR interface elements, showing how users interact wi
 
 Illustrates key interactions and use cases in BrainBoostVR.
 
-### Use Case 1 – User Authentication (Login)
-![Usecase1](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Usecase1.png)
+```mermaid
+sequenceDiagram
+    participant User as Utilisateur
+    participant UI as Interface VR
+    participant API as Backend
+    participant DB as Base de données
 
-### Use Case 2 - Save User Score
-![Usecase2](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Usecase2.png)
+    User->>UI: Cliquer sur "Voir mes scores"
+    UI->>API: GET /scores avec JWT token
+    API->>API: Vérifier validité du token
+    alt Token valide
+        API->>DB: Récupérer userID depuis token
+        DB-->>API: UserID trouvé
+        API->>DB: SELECT * FROM scores WHERE userID = ?
+        DB-->>API: Scores de l'utilisateur
+        API-->>UI: Retourner liste de scores
+        UI-->>User: Afficher scores
+    else Token invalide / expiré
+        API-->>UI: 401 Unauthorized
+        UI-->>User: Message "Connexion expirée, veuillez vous reconnecter"
+    end
 
-### Use Case 3 - View Performance History
-![Usecase3](https://github.com/Sweetyamnesia/BrainBoostVR/blob/main/portfolio-project/pictures/Usecase3.png)
+    User->>UI: Cliquer sur "Mon profil"
+    UI->>API: GET /users avec JWT
+    API->>API: Vérifier validité du token
+    alt Token valide
+        API->>DB: Récupérer userID depuis token
+        DB-->>API: User trouvé
+        API-->>UI: Retourner infos utilisateur
+        UI-->>User: Afficher profil
+    else Token invalide / expiré
+        API-->>UI: 401 Unauthorized
+        UI-->>User: Message "Connexion expirée, veuillez vous reconnecter"
+    end
+```
 
 # 8️⃣ API Specifications
 
@@ -177,21 +214,22 @@ Illustrates key interactions and use cases in BrainBoostVR.
 
 Used for secure user authentication, providing JWT tokens for authorization in API requests.
 
-- Handles `secure authentication` only.
-- Returns a `JWT token`.
-- Token is sent in the `Authorization` header when calling the Custom API.
+- Handles secure login & registration.
+- Returns JWT token.
+- Token is sent in `Authorization` header for the Custom API.
 
-## 8.2 Custom REST API (SQL Storage)
+## 8.2 Custom REST API (.NET)
 
-Handles storing and retrieving scores and session data between Unity and SQL database.
 
-| Endpoint    | Method | Input Example                                           | Output Example                                        | Description                                |
-| ----------- | ------ | ------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------ |
-| `/login`    | POST   | `{ "email": "user@test.com", "password": "1234" }`      | `{ "authToken": "...", "userID": 1 }`                 | Authenticates with Firebase, returns token |
-| `/scores`   | POST   | `{ "userID": 1, "exerciseID": 5, "score": 85 }`         | `{ "status": "success" }`                             | Saves exercise score in SQL                |
-| `/scores`   | GET    | `/scores?userID=1`                                      | `{ "scores": [ ... ] }`                               | Fetches user's scores                      |
-| `/sessions` | POST   | `{ "userID": 1, "startTime": "...", "endTime": "..." }` | `{ "status": "success" }`                             | Saves session info                         |
-| `/users`    | GET    | `/users?userID=1`                                       | `{ "userID": 1, "email": "...", "createdAt": "..." }` | Returns user profile                       |
+| Endpoint    | Method | Input Example                              | Output Example                                        | Description                                    |
+| ----------- | ------ | ------------------------------------------ | ----------------------------------------------------- | ---------------------------------------------- |
+| `/signup`   | POST   | `{ "email": "...", "password": "..." }`    | `{ "authToken": "...", "userID": 1 }`                 | Crée un utilisateur et retourne token JWT      |
+| `/login`    | POST   | `{ "email": "...", "password": "..." }`    | `{ "authToken": "...", "userID": 1 }`                 | Authentifie l’utilisateur, retourne JWT        |
+| `/scores`   | POST   | `{ "exerciseID": 5, "score": 85 }`         | `{ "status": "success" }`                             | Sauvegarde le score (userID depuis token)      |
+| `/scores`   | GET    | Header: `Authorization: Bearer <JWT>`      | `{ "scores": [ ... ] }`                               | Récupère les scores de l’utilisateur via token |
+| `/sessions` | POST   | `{ "startTime": "...", "endTime": "..." }` | `{ "status": "success" }`                             | Sauvegarde la session (userID depuis token)    |
+| `/users`    | GET    | Header: `Authorization: Bearer <JWT>`      | `{ "userID": 1, "email": "...", "createdAt": "..." }` | Retourne les infos utilisateur via token       |
+
 
 # 9️⃣ Plan SCM and QA Strategies
 
