@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using Unity.XR.CoreUtils;
+
 
 
 public class PlayerController : MonoBehaviour
 {
+
 	// Variables for grabbing
 	public XRBaseInteractor leftHandInteractor;
 	public XRBaseInteractor rightHandInteractor;
@@ -30,8 +33,8 @@ public class PlayerController : MonoBehaviour
 		// Teleportation event subscription
         if (teleportationProvider != null)
         {
-            teleportationProvider.teleportationStarted.AddListener(OnTeleportStart);
-            teleportationProvider.teleportationCompleted.AddListener(OnTeleportEnd);
+            teleportationProvider.beginLocomotion += OnTeleportStart;
+            teleportationProvider.endLocomotion += OnTeleportEnd;
         }
 	}
 
@@ -50,14 +53,14 @@ public class PlayerController : MonoBehaviour
 	}
 
 	// Start teleportation
-    void OnTeleportStart(TeleportingEventArgs args)
+    void OnTeleportStart(LocomotionSystem locomotionSystem)
     {
         startPosition = xrOrigin.transform.position;
         Debug.Log("Téléportation commencée depuis " + startPosition);
     }
 
     // End of teleportation
-    void OnTeleportEnd(TeleportingEventArgs args)
+    void OnTeleportEnd(LocomotionSystem locomotionSystem)
     {
         endPosition = xrOrigin.transform.position;
         Debug.Log("Téléportation terminée à " + endPosition);
@@ -78,7 +81,7 @@ public class PlayerController : MonoBehaviour
         // 3. Add a log for tracking
 	}
 
-	void LogInteraction()
+	void LogInteraction(string logMessage)
 	{
 		Debug.Log("[INTERACTION] " + logMessage);
 	}
