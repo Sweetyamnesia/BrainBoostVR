@@ -66,14 +66,15 @@
 
 ```mermaid
 graph TD
-  A[Oculus Quest 2] --> B[Unity VR App]
-  B --> C[Custom REST API - .NET]
-  C <--> D[Firebase Auth (Anonymous)]
-  C <--> DB[(SQL Database)]
-  DB --- U[Users]
-  DB --- X[Exercises]
-  DB --- S[Scores]
-  DB --- SE[Sessions]
+  A["Oculus Quest 2"] --> B["Unity VR App"]
+  B --> C["Custom REST API - .NET"]
+  C --> D["Firebase Auth (Anonymous)"]
+  C --> DB["SQL Database"]
+  DB --> U["Users"]
+  DB --> X["Exercises"]
+  DB --> S["Scores"]
+  DB --> SE["Sessions"]
+
 ````
 ---
 
@@ -168,14 +169,14 @@ CREATE TABLE Sessions (
 ```mermaid
 erDiagram
     USERS {
-        int userID PK
-        string firebaseUID UNIQUE
+        int userID
+        string firebaseUID
         string name
     }
     
     EXERCISES {
-        int exerciseID PK
-        int userID FK
+        int exerciseID
+        int userID
         int score
         float durationMinutes
         int successes
@@ -184,25 +185,26 @@ erDiagram
     }
     
     SCORES {
-        int scoreID PK
-        int userID FK
-        int exerciseID FK
+        int scoreID
+        int userID
+        int exerciseID
         int score
         datetime timestamp
     }
     
     SESSIONS {
-        int sessionID PK
-        int userID FK
+        int sessionID
+        int userID
         datetime startTime
         datetime endTime
         float durationMinutes
     }
 
-    USERS ||--o{ EXERCISES : has
-    USERS ||--o{ SCORES : has
-    USERS ||--o{ SESSIONS : has
-    EXERCISES ||--o{ SCORES : is_scored_in
+    USERS ||--o{ EXERCISES : "has"
+    USERS ||--o{ SCORES : "has"
+    USERS ||--o{ SESSIONS : "has"
+    EXERCISES ||--o{ SCORES : "is_scored_in"
+
 ```
 ---
 
@@ -222,39 +224,66 @@ ___
 ```mermaid
 sequenceDiagram
     participant User
-    participant UI
-    participant API
+    participant UnityUI as Unity VR UI
+    participant API as Backend API (.NET)
     participant Firebase
     participant DB
 
     %% Signup (Anonymous)
-    User->>UI: Start exercise, provide name (optional)
-    UI->>Firebase: Request anonymous login
-    Firebase-->>UI: authToken + firebaseUID
-    UI->>API: POST /users {firebaseUID, name}
+    User->>UnityUI: Start exercise, provide name (optional)
+    UnityUI->>Firebase: Request anonymous login
+    Firebase-->>UnityUI: authToken + firebaseUID
+    UnityUI->>API: POST /users {firebaseUID, name}
     API->>DB: INSERT new user
     DB-->>API: Confirmation
-    API-->>UI: User registered
+    API-->>UnityUI: User registered
 
     %% Login (Anonymous)
-    User->>UI: Start exercise
-    UI->>Firebase: Request anonymous login
-    Firebase-->>UI: authToken + firebaseUID
-    UI->>API: Store token for requests
+    User->>UnityUI: Start exercise
+    UnityUI->>Firebase: Request anonymous login
+    Firebase-->>UnityUI: authToken + firebaseUID
+    UnityUI->>API: Store token for requests
 
-    %% Exercise completion
-    UI->>API: POST /scores {firebaseUID, exerciseID, score, successes, failures, durationMinutes}
-    API->>DB: INSERT score
-    DB-->>API: Confirmation
-    API-->>UI: Score saved
-
-    %% Error handling
-    alt Invalid token
-        API-->>UI: 401 Unauthorized
-        UI-->>User: Display error
+    %% Exercise completion / Score submission
+    UnityUI->>API: POST /scores {firebaseUID, exerciseID, score, successes, failures, durationMinutes}
+    alt Token valid & DB insert OK
+        API->>DB: INSERT score
+        DB-->>API: Confirmation
+        API-->>UnityUI: Score saved
+    else Invalid token
+        API-->>UnityUI: 401 Unauthorized
+        UnityUI-->>User: Display "Unauthorized"
     else DB insert fails
-        API-->>UI: 500 Internal Server Error
-        UI-->>User: Display error
+        API-->>UnityUI: 500 Internal Server Error
+        UnityUI-->>User: Display "Database error"
+    end
+
+    %% Retrieve scores history
+    UnityUI->>API: GET /scores
+    alt Token valid
+        API->>DB: SELECT scores WHERE firebaseUID=...
+        DB-->>API: List of scores
+        API-->>UnityUI: Return scores list
+    else Invalid token
+        API-->>UnityUI: 401 Unauthorized
+        UnityUI-->>User: Display "Unauthorized"
+    else No scores found
+        API-->>UnityUI: 404 Not Found
+        UnityUI-->>User: Display "No scores yet"
+    end
+
+    %% Session tracking
+    UnityUI->>API: POST /sessions {firebaseUID, startTime, endTime, durationMinutes}
+    alt Token valid & DB insert OK
+        API->>DB: INSERT session
+        DB-->>API: Confirmation
+        API-->>UnityUI: Session saved
+    else Invalid token
+        API-->>UnityUI: 401 Unauthorized
+        UnityUI-->>User: Display "Unauthorized"
+    else DB insert fails
+        API-->>UnityUI: 500 Internal Server Error
+        UnityUI-->>User: Display "Database error"
     end
 ```
 ---
