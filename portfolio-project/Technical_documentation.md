@@ -66,14 +66,15 @@
 
 ```mermaid
 graph TD
-  A[Oculus Quest 2] --> B[Unity VR App]
-  B --> C[Custom REST API - .NET]
-  C <--> D[Firebase Auth (Anonymous)]
-  C <--> DB[(SQL Database)]
-  DB --- U[Users]
-  DB --- X[Exercises]
-  DB --- S[Scores]
-  DB --- SE[Sessions]
+  A["Oculus Quest 2"] --> B["Unity VR App"]
+  B --> C["Custom REST API - .NET"]
+  C --> D["Firebase Auth (Anonymous)"]
+  C --> DB["SQL Database"]
+  DB --> U["Users"]
+  DB --> X["Exercises"]
+  DB --> S["Scores"]
+  DB --> SE["Sessions"]
+
 ````
 ---
 
@@ -168,14 +169,14 @@ CREATE TABLE Sessions (
 ```mermaid
 erDiagram
     USERS {
-        int userID PK
-        string firebaseUID UNIQUE
+        int userID
+        string firebaseUID
         string name
     }
     
     EXERCISES {
-        int exerciseID PK
-        int userID FK
+        int exerciseID
+        int userID
         int score
         float durationMinutes
         int successes
@@ -184,25 +185,26 @@ erDiagram
     }
     
     SCORES {
-        int scoreID PK
-        int userID FK
-        int exerciseID FK
+        int scoreID
+        int userID
+        int exerciseID
         int score
         datetime timestamp
     }
     
     SESSIONS {
-        int sessionID PK
-        int userID FK
+        int sessionID
+        int userID
         datetime startTime
         datetime endTime
         float durationMinutes
     }
 
-    USERS ||--o{ EXERCISES : has
-    USERS ||--o{ SCORES : has
-    USERS ||--o{ SESSIONS : has
-    EXERCISES ||--o{ SCORES : is_scored_in
+    USERS ||--o{ EXERCISES : "has"
+    USERS ||--o{ SCORES : "has"
+    USERS ||--o{ SESSIONS : "has"
+    EXERCISES ||--o{ SCORES : "is_scored_in"
+
 ```
 ---
 
