@@ -1,95 +1,82 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using Unity.XR.CoreUtils;
-
-
 
 public class PlayerController : MonoBehaviour
 {
+    // Variables pour la saisie
+    public XRBaseInteractor leftHandInteractor;
+    public XRBaseInteractor rightHandInteractor;
+    private List<XRGrabInteractable> grabbableObjects;
 
-	// Variables for grabbing
-	public XRBaseInteractor leftHandInteractor;
-	public XRBaseInteractor rightHandInteractor;
-	private List<XRGrabInteractable> grabbableObjects;
-
-	// Variables for teleportation
+    // Variables pour la téléportation
     public TeleportationProvider teleportationProvider;
     public XROrigin xrOrigin;
     private Vector3 startPosition;
     private Vector3 endPosition;
 
-	void Start()
-	{
-		// Subscription to grab/release events
-		grabbableObjects = new List<XRGrabInteractable>(FindObjectsOfType<XRGrabInteractable>());
-		foreach (var obj in grabbableObjects)
-		{
-			obj.selectEntered.AddListener(DetectGrab);
-			obj.selectExited.AddListener(DetectRelease);
-		}
+    void Start()
+    {
+        // Récupérer tous les objets saisissables dans la scène
+        grabbableObjects = new List<XRGrabInteractable>(FindObjectsOfType<XRGrabInteractable>());
+        foreach (var obj in grabbableObjects)
+        {
+            obj.selectEntered.AddListener(DetectGrab);
+            obj.selectExited.AddListener(DetectRelease);
+        }
 
-		// Teleportation event subscription
+        // Abonnement aux événements de téléportation
         if (teleportationProvider != null)
         {
             teleportationProvider.beginLocomotion += OnTeleportStart;
             teleportationProvider.endLocomotion += OnTeleportEnd;
         }
-	}
+    }
 
-	// Grab detection
-	void DetectGrab(SelectEnterEventArgs args)
-	{
-		EmitEvent("GrabObject");
-		Debug.Log(args.interactableObject.transform.name + " saisi");
-	}
+    // Gestion de la saisie
+    void DetectGrab(SelectEnterEventArgs args)
+    {
+        EmitEvent("GrabObject");
+        LogInteraction($"{args.interactableObject.transform.name} saisi");
+    }
 
-	// Release detection
-	void DetectRelease(SelectExitEventArgs args)
-	{
-		Debug.Log(args.interactableObject.transform.name + " relâché");
-		EmitEvent("ReleaseObject");
-	}
+    void DetectRelease(SelectExitEventArgs args)
+    {
+        EmitEvent("ReleaseObject");
+        LogInteraction($"{args.interactableObject.transform.name} relâché");
+    }
 
-	// Start teleportation
+    // Téléportation
     void OnTeleportStart(LocomotionSystem locomotionSystem)
     {
         startPosition = xrOrigin.transform.position;
-        Debug.Log("Téléportation commencée depuis " + startPosition);
+        LogInteraction($"Téléportation commencée depuis {startPosition}");
     }
 
-    // End of teleportation
     void OnTeleportEnd(LocomotionSystem locomotionSystem)
     {
         endPosition = xrOrigin.transform.position;
-        Debug.Log("Téléportation terminée à " + endPosition);
+        LogInteraction($"Téléportation terminée à {endPosition}");
         EmitEvent("Teleportation");
     }
 
-	// Event management
-	void EmitEvent(string eventName)
-	{
-		// Send the event name to the ExerciseManager
-		Debug.Log("Event émis : " + eventName);
-	}
+    // Émission d’événements pour le gestionnaire global
+    void EmitEvent(string eventName)
+    {
+        Debug.Log($"[EVENT] {eventName}");
+        // Ici tu peux connecter ton ExerciseManager ou autre système de suivi
+    }
 
-	void DetectDoorOpen()
-	{
-		// 1. Check if a door has been opened
-        // 2. Trigger the event to start the scenario or explanations
-        // 3. Add a log for tracking
-	}
+    // Logging centralisé
+    void LogInteraction(string message)
+    {
+        Debug.Log($"[INTERACTION] {message}");
+    }
 
-	void LogInteraction(string logMessage)
-	{
-		Debug.Log("[INTERACTION] " + logMessage);
-	}
-
-	void Update()
-	{
-
-	}
-	
-	
+    // À implémenter plus tard si nécessaire
+    void DetectDoorOpen()
+    {
+        // Vérifier si une porte ou un tiroir a été ouvert
+        // Déclencher des événements si nécessaire
+    }
 }
