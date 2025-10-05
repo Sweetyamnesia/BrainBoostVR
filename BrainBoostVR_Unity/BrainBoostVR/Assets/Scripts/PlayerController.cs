@@ -1,35 +1,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion;
+using Unity.XR.CoreUtils;
 
 public class PlayerController : MonoBehaviour
 {
     // Variables pour la saisie
-    public XRBaseInteractor leftHandInteractor;
-    public XRBaseInteractor rightHandInteractor;
-    private List<XRGrabInteractable> grabbableObjects;
+    public UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor leftHandInteractor;
+    public UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor rightHandInteractor;
+    private List<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable> grabbableObjects;
 
     // Variables pour la téléportation
-    public TeleportationProvider teleportationProvider;
+    public UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationProvider teleportationProvider;
     public XROrigin xrOrigin;
     private Vector3 startPosition;
     private Vector3 endPosition;
 
     void Start()
     {
-        // Récupérer tous les objets saisissables dans la scène
-        grabbableObjects = new List<XRGrabInteractable>(FindObjectsOfType<XRGrabInteractable>());
+        // 🔹 Trouver tous les objets XRGrabInteractable dans la scène
+        grabbableObjects = new List<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>(
+            Object.FindObjectsByType<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>(FindObjectsSortMode.None)
+        );
+
         foreach (var obj in grabbableObjects)
         {
             obj.selectEntered.AddListener(DetectGrab);
             obj.selectExited.AddListener(DetectRelease);
         }
 
-        // Abonnement aux événements de téléportation
+        // 🔹 Abonnement aux événements de téléportation (adapté à la version stable)
         if (teleportationProvider != null)
         {
-            teleportationProvider.beginLocomotion += OnTeleportStart;
-            teleportationProvider.endLocomotion += OnTeleportEnd;
+            teleportationProvider.locomotionStarted += OnTeleportStart;
+            teleportationProvider.locomotionEnded += OnTeleportEnd;
         }
     }
 
@@ -46,14 +51,14 @@ public class PlayerController : MonoBehaviour
         LogInteraction($"{args.interactableObject.transform.name} relâché");
     }
 
-    // Téléportation
-    void OnTeleportStart(LocomotionSystem locomotionSystem)
+    // Téléportation (version stable — sans LocomotionEventArgs)
+    void OnTeleportStart(LocomotionProvider provider)
     {
         startPosition = xrOrigin.transform.position;
         LogInteraction($"Téléportation commencée depuis {startPosition}");
     }
 
-    void OnTeleportEnd(LocomotionSystem locomotionSystem)
+    void OnTeleportEnd(LocomotionProvider provider)
     {
         endPosition = xrOrigin.transform.position;
         LogInteraction($"Téléportation terminée à {endPosition}");
@@ -64,7 +69,7 @@ public class PlayerController : MonoBehaviour
     void EmitEvent(string eventName)
     {
         Debug.Log($"[EVENT] {eventName}");
-        // Ici tu peux connecter ton ExerciseManager ou autre système de suivi
+        // 👉 Tu pourras connecter ton ExerciseManager ou autre système ici
     }
 
     // Logging centralisé
