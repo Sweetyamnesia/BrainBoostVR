@@ -17,6 +17,9 @@ public class DoorController : MonoBehaviour
     private float rightCurrentAngle = 0f;
     private bool opening = false;
 
+	public ExerciseManager exerciseManager;
+
+
     void Start()
     {
         if (leftGrab != null)
@@ -38,11 +41,20 @@ public class DoorController : MonoBehaviour
         }
     }
 
-    private void TriggerScenario()
-    {
-        // Ici tu déclenches ton GameManager ou ton scénario
-        Debug.Log("[SCENARIO] Début du scénario principal !");
-    }
+	private void TriggerScenario()
+	{
+    	Debug.Log("[SCENARIO] Début du scénario principal !");
+
+    	if (exerciseManager != null)
+    	{
+        	exerciseManager.StartExercise();
+        	Debug.Log("[SCENARIO] Exercice lancé !");
+    	}
+    	else
+    	{
+        	Debug.LogWarning("[SCENARIO] Aucun ExerciseManager assigné !");
+    	}
+	}
 
     void Update()
     {

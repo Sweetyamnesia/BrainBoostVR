@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 endPosition;
 
+	public ExerciseManager exerciseManager;
+
     void Start()
     {
         // 🔹 Trouver tous les objets XRGrabInteractable dans la scène
@@ -78,10 +80,9 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"[INTERACTION] {message}");
     }
 
-    // À implémenter plus tard si nécessaire
-    void DetectDoorOpen()
-    {
-        // Vérifier si une porte ou un tiroir a été ouvert
-        // Déclencher des événements si nécessaire
+	void DetectDoorOpen()
+	{
+		exerciseManager.StartExercise();
+		Debug.Log("L’exercice démarre !");
     }
 }
