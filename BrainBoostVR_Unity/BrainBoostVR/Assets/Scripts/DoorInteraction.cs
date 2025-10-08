@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class DoorController : MonoBehaviour
 {
@@ -9,8 +10,8 @@ public class DoorController : MonoBehaviour
     public float openAngle = 90f;       // Angle d’ouverture
     public float openSpeed = 2f;        // Vitesse de rotation
 
-    public UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable leftGrab;
-    public UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable rightGrab;
+    public XRGrabInteractable leftGrab;
+    public XRGrabInteractable rightGrab;
 
     private bool doorOpened = false;
     private float leftCurrentAngle = 0f;
@@ -60,26 +61,27 @@ public class DoorController : MonoBehaviour
     {
         if (opening)
         {
-            // Rotation gauche
-            if (leftCurrentAngle < openAngle)
-            {
-                float step = openSpeed * Time.deltaTime;
-                leftDoor.Rotate(Vector3.up, step);
-                leftCurrentAngle += step;
-            }
+
+			float step = openSpeed * Time.deltaTime;
+			// Rotation gauche
+			if (leftCurrentAngle < openAngle)
+			{
+				leftDoor.Rotate(Vector3.up, step);
+				leftCurrentAngle += step;
+			}
 
             // Rotation droite (inverse)
             if (rightCurrentAngle < openAngle)
             {
-                float step = openSpeed * Time.deltaTime;
                 rightDoor.Rotate(Vector3.up, -step);
                 rightCurrentAngle += step;
             }
 
-            // Si les deux portes ont fini de tourner
-            if (leftCurrentAngle >= openAngle && rightCurrentAngle >= openAngle)
-            {
-                opening = false;
+			// Si les deux portes ont fini de tourner
+			if (leftCurrentAngle >= openAngle && rightCurrentAngle >= openAngle)
+			{
+				opening = false;
+				Debug.Log("[DOOR] Ouverture terminée !");
             }
         }
     }
