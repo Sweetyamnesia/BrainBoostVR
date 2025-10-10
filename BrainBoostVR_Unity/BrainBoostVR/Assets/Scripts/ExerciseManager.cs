@@ -13,9 +13,12 @@ public class ExerciseObject
 
 public class ExerciseManager : MonoBehaviour
 {
+	[Header("Audio")]
 	public AudioSource audioSource;               // assigné via l’inspecteur
 	public AudioClip instructionsAudio;           // assigné via l’inspecteur
-	public List<ExerciseObject> exerciseObjects;  // liste des objets à placer
+	
+	[Header("Exercise Objects")]
+	public List<ExerciseObject> exerciseObjects = new List<ExerciseObject>();  // liste des objets à placer
 
 	private bool isExerciseRunning = false;
 	private float elapsedTime = 0f;
@@ -25,32 +28,47 @@ public class ExerciseManager : MonoBehaviour
 		// Ici, on peut accéder aux objets Unity en toute sécurité
 		foreach (var obj in exerciseObjects)
 		{
-			Debug.Log("Objet prêt : " + obj.objectRef.name);
-			obj.objectRef.SetActive(false); // cacher les objets au départ
+			if (obj.objectRef != null)
+			{
+				Debug.Log("Objet prêt : " + obj.objectRef.name);
+				obj.objectRef.SetActive(false); // cacher les objets au départ
+			}
 		}
 	}
 
 	public void StartExercise()
 	{
-		// Jouer l’audio des instructions
-		audioSource.clip = instructionsAudio;
-		audioSource.Play();
+		if (instructionsAudio != null && audioSource != null)
+		{
+			// Jouer l’audio des instructions
+			audioSource.clip = instructionsAudio;
+			audioSource.Play();
 
-		// Lancer coroutine qui attend la fin de l’audio
-		StartCoroutine(PlayInstructionsAndStartTimer());
+			// Lancer coroutine qui attend la fin de l’audio
+			StartCoroutine(PlayInstructionsAndStartTimer());
+		}
+		else
+		{
+			Debug.LogWarning("AudioSource ou instructionsAudio manquant !");
+			ActivateExerciseObjects();
+			isExerciseRunning = true;
+		}
 	}
 
 	private IEnumerator PlayInstructionsAndStartTimer()
 	{
 		while (audioSource.isPlaying)
 		{
-    		yield return null;
+			yield return null;
 		}
+		ActivateExerciseObjects();
 		isExerciseRunning = true;
 		elapsedTime = 0f;
 		Debug.Log("Chrono démarré !");
+	}
 
-
+	private void ActivateExerciseObjects()
+	{
 		// Afficher les objets à placer
 		foreach (var obj in exerciseObjects)
 		{
@@ -63,9 +81,24 @@ public class ExerciseManager : MonoBehaviour
 		if (isExerciseRunning)
 		{
 			elapsedTime += Time.deltaTime;
+
+			//Si tous les objet sont bien placés, on termine l'exercice
+			bool allPlaced = true;
+			foreach (var obj in exerciseObjects)
+			{
+				if (!obj.isPlacedCorrectly)
+				{
+					allPlaced = false;
+					break;
+				}
+			}
+
+			if (allPlaced)
+			{
+				isExerciseRunning = false;
+				Debug.Log($"Exercice terminé en {elapsedTime:F2} secondes !");	
+			}
 		}
 
-		isExerciseRunning = false;
-		Debug.Log("Exercice terminé !");
 	}
 }
