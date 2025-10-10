@@ -1518,35 +1518,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!1 &574952404 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1000011746669570, guid: 23d25b2e2d4364dd4b92c52ef40cd36e,
-    type: 3}
-  m_PrefabInstance: {fileID: 1857420216}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &574952405
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 574952404}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a175410bdc9664662adc8da0ee64ec0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  leftDoor: {fileID: 1312835137}
-  rightDoor: {fileID: 1312835136}
-  openAngle: 90
-  openSpeed: 2
-  leftGrab: {fileID: 1724938012}
-  rightGrab: {fileID: 1635075899}
-  doorOpened: 0
-  leftCurrentAngle: 0
-  rightCurrentAngle: 0
-  opening: 0
-  exerciseManager: {fileID: 672598748}
 --- !u!1 &575579171 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1000012504320332, guid: 23d25b2e2d4364dd4b92c52ef40cd36e,
@@ -1713,7 +1684,7 @@ GameObject:
   - component: {fileID: 672598749}
   - component: {fileID: 672598748}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: ExerciseManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1735,19 +1706,19 @@ MonoBehaviour:
   instructionsAudio: {fileID: 8300000, guid: 70b8e040828a04321a352e62fb6ab66d, type: 3}
   exerciseObjects:
   - objectRef: {fileID: 845719444}
-    targetPosition: {fileID: 113991145}
+    targetPosition: {fileID: 0}
     isPlacedCorrectly: 0
   - objectRef: {fileID: 207147540}
-    targetPosition: {fileID: 1739019416}
+    targetPosition: {fileID: 0}
     isPlacedCorrectly: 0
   - objectRef: {fileID: 1375737368}
-    targetPosition: {fileID: 1186856577}
+    targetPosition: {fileID: 0}
     isPlacedCorrectly: 0
   - objectRef: {fileID: 773190229}
-    targetPosition: {fileID: 772059681}
+    targetPosition: {fileID: 0}
     isPlacedCorrectly: 0
   - objectRef: {fileID: 1964602097}
-    targetPosition: {fileID: 755597460}
+    targetPosition: {fileID: 0}
     isPlacedCorrectly: 0
 --- !u!4 &672598749
 Transform:
@@ -4107,18 +4078,6 @@ MonoBehaviour:
   audioSource: {fileID: 1186856580}
   correctSound: {fileID: 8300000, guid: 9b79dabe2e8be40db94916a19dfc68a9, type: 3}
   wrongSound: {fileID: 8300000, guid: 8ab5c2d68ed8c4b9491f8330053fe319, type: 3}
---- !u!4 &1312835136 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4000013620288728, guid: 23d25b2e2d4364dd4b92c52ef40cd36e,
-    type: 3}
-  m_PrefabInstance: {fileID: 1857420216}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1312835137 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4000010589596892, guid: 23d25b2e2d4364dd4b92c52ef40cd36e,
-    type: 3}
-  m_PrefabInstance: {fileID: 1857420216}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1316525631
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5782,10 +5741,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 490787108}
-    - targetCorrespondingSourceObject: {fileID: 1000011746669570, guid: 23d25b2e2d4364dd4b92c52ef40cd36e,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 574952405}
     - targetCorrespondingSourceObject: {fileID: 1000013855488504, guid: 23d25b2e2d4364dd4b92c52ef40cd36e,
         type: 3}
       insertIndex: -1

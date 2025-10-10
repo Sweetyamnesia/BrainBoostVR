@@ -111,30 +111,22 @@ public class ExerciseManager : MonoBehaviour
             	continue;
         	}
 
-        	// Si c'est un prefab (pas dans la scène), rootCount == 0
+        	// Si c'est un prefab (non présent dans la scène)
         	if (obj.objectRef.scene.rootCount == 0)
         	{
-            	Debug.Log($"[EXERCISE] Instantiating prefab {obj.objectRef.name}");
-            	GameObject inst;
-            	if (obj.targetPosition != null)
-                	inst = Instantiate(obj.objectRef, obj.targetPosition.position, obj.targetPosition.rotation);
-            	else
-                	inst = Instantiate(obj.objectRef);
+            	Debug.Log($"[EXERCISE] Instantiation du prefab {obj.objectRef.name}");
+            	GameObject inst = Instantiate(obj.objectRef); // on le laisse à sa position par défaut
             	obj.objectRef = inst;
         	}
-        	else
-        	{
-            	// Si on a une targetPosition, on la positionne (optionnel)
-            	if (obj.targetPosition != null)
-            	{
-                	obj.objectRef.transform.SetPositionAndRotation(obj.targetPosition.position, obj.targetPosition.rotation);
-            	}
-            	obj.objectRef.SetActive(true);
-        	}
 
-        	Debug.Log($"[EXERCISE] Activé : {obj.objectRef.name}");
+        	// ⚠️ NE PAS le replacer sur targetPosition
+        	// → Il reste où tu l’as positionné dans la scène
+        	obj.objectRef.SetActive(true);
+
+        	Debug.Log($"[EXERCISE] {obj.objectRef.name} activé à sa position d’origine.");
     	}
 	}
+
 
 
 	void Update()

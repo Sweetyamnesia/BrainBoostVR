@@ -1,55 +1,53 @@
 using UnityEngine;
 
-public class HookFeedback : MonoBehaviour
+public class Hook : MonoBehaviour
 {
-	[Header("Hook Settings")]
-	public string expectedObjectName; //le nom de l'objet attendu (ex: Banana, Laptop...)
-	public Color correctColor = Color.blue;
-	public Color wrongColor = Color.red;
-	public Color defaultColor = Color.gray;
+    public string expectedObjectName;
+    public AudioSource audioSource;
+    public AudioClip correctSound;
+    public AudioClip wrongSound;
 
-	[Header("Audio Feedback")]
-	public AudioSource audioSource;
-	public AudioClip correctSound;
-	public AudioClip wrongSound;
+    public Renderer hookRenderer; // le renderer pour changer la couleur
+    public Color correctColor = Color.blue;
+    public Color wrongColor = Color.red;
+    public Color defaultColor = Color.gray;
 
-	private Renderer rend;
+    private bool isObjectPlacedCorrectly = false;
 
-	void Start()
-	{
-		rend = GetComponent<Renderer>();
-		if (rend != null)
-		{
-			rend.material.color = defaultColor;
-		}
-		else
-		{
-			Debug.LogWarning("[HOOK] Aucun Renderer trouvé sur (name)");
-		}
-	}
+    private void Start()
+    {
+        if (hookRenderer != null)
+            hookRenderer.material.color = defaultColor;
+    }
 
-	private void OnTriggerEnter(Collider other)
-	{
-		string objectName = other.gameObject.name;
-		if (objectName.Contains(expectedObjectName))
-		{
-			rend.material.color = correctColor;
+    private void OnTriggerEnter(Collider other)
+    {
+        if (isObjectPlacedCorrectly) return;
 
-			if (audioSource != null && correctSound != null)
-				audioSource.PlayOneShot(correctSound);
-		}
-		else
-		{
-			rend.material.color = wrongColor;
+        if (other.gameObject.name.Contains(expectedObjectName))
+        {
+            // Objet correct
+            if (hookRenderer != null)
+                hookRenderer.material.color = correctColor;
 
-			if (audioSource != null && correctSound != null)
-				audioSource.PlayOneShot(correctSound);
-		}
-	}
+            audioSource.PlayOneShot(correctSound);
+            isObjectPlacedCorrectly = true;
+        }
+        else
+        {
+            // Objet incorrect
+            if (hookRenderer != null)
+                hookRenderer.material.color = wrongColor;
 
-	private void OnTriggerExit(Collider other)
-	{
-		if (rend == null) return;
-		rend.material.color = defaultColor;		
-	}
+            audioSource.PlayOneShot(wrongSound);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!isObjectPlacedCorrectly && hookRenderer != null)
+        {
+            hookRenderer.material.color = defaultColor; // revenir à la couleur de base
+        }
+    }
 }
