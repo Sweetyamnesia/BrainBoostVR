@@ -10,95 +10,87 @@ public class ExerciseObject
     public bool isPlacedCorrectly;   // suivi de l’état
 }
 
-
 public class ExerciseManager : MonoBehaviour
 {
-	[Header("Audio")]
-	public AudioSource audioSource;               // assigné via l’inspecteur
-	public AudioClip instructionsAudio;           // assigné via l’inspecteur
-	
-	[Header("Exercise Objects")]
-	public List<ExerciseObject> exerciseObjects = new List<ExerciseObject>();  // liste des objets à placer
+    [Header("Audio")]
+    public AudioSource audioSource;               // assigné via l’inspecteur
+    public AudioClip instructionsAudio;           // assigné via l’inspecteur
+    
+    [Header("Exercise Objects")]
+    public List<ExerciseObject> exerciseObjects = new List<ExerciseObject>();  // liste des objets à placer
 
-	private bool isExerciseRunning = false;
-	private float elapsedTime = 0f;
+    private bool isExerciseRunning = false;
+    private float elapsedTime = 0f;
 
-	void Start()
-	{
-		// Ici, on peut accéder aux objets Unity en toute sécurité
-		foreach (var obj in exerciseObjects)
-		{
-			if (obj.objectRef != null)
-			{
-				Debug.Log("Objet prêt : " + obj.objectRef.name);
-				obj.objectRef.SetActive(false); // cacher les objets au départ
-			}
-		}
-	}
+    void Start()
+    {
+        // Cacher tous les objets au départ et vérifier qu'ils sont assignés
+        foreach (var obj in exerciseObjects)
+        {
+            if (obj.objectRef != null)
+            {
+                Debug.Log($"[ExerciseManager] Objet prêt : {obj.objectRef.name}");
+                obj.objectRef.SetActive(false);
+            }
+        }
+    }
 
-	public void StartExercise()
-	{
-		if (instructionsAudio != null && audioSource != null)
-		{
-			// Jouer l’audio des instructions
-			audioSource.clip = instructionsAudio;
-			audioSource.Play();
+    public void StartExercise()
+    {
+        // Lancer la coroutine qui joue l'audio et active les objets
+        StartCoroutine(PlayInstructionsAndActivateObjects());
+    }
 
-			// Lancer coroutine qui attend la fin de l’audio
-			StartCoroutine(PlayInstructionsAndStartTimer());
-		}
-		else
-		{
-			Debug.LogWarning("AudioSource ou instructionsAudio manquant !");
-			ActivateExerciseObjects();
-			isExerciseRunning = true;
-		}
-	}
+    private IEnumerator PlayInstructionsAndActivateObjects()
+    {
+        // Jouer l’audio si disponible
+        if (audioSource != null && instructionsAudio != null)
+        {
+            audioSource.clip = instructionsAudio;
+            audioSource.Play();
 
-	private IEnumerator PlayInstructionsAndStartTimer()
-	{
-		while (audioSource.isPlaying)
-		{
-			yield return null;
-		}
-		ActivateExerciseObjects();
-		isExerciseRunning = true;
-		elapsedTime = 0f;
-		Debug.Log("Chrono démarré !");
-	}
+            while (audioSource.isPlaying)
+            {
+                yield return null;
+            }
+        }
 
-	private void ActivateExerciseObjects()
-	{
-		// Afficher les objets à placer
-		foreach (var obj in exerciseObjects)
-		{
-			obj.objectRef.SetActive(true);
-		}
-	}
+        // Activer tous les objets à manipuler
+        foreach (var obj in exerciseObjects)
+        {
+            if (obj.objectRef != null)
+                obj.objectRef.SetActive(true);
+        }
 
-	void Update()
-	{
-		if (isExerciseRunning)
-		{
-			elapsedTime += Time.deltaTime;
+        // Démarrer le chrono
+        isExerciseRunning = true;
+        elapsedTime = 0f;
 
-			//Si tous les objet sont bien placés, on termine l'exercice
-			bool allPlaced = true;
-			foreach (var obj in exerciseObjects)
-			{
-				if (!obj.isPlacedCorrectly)
-				{
-					allPlaced = false;
-					break;
-				}
-			}
+        Debug.Log("[ExerciseManager] Exercice lancé : objets activés et chrono démarré !");
+    }
 
-			if (allPlaced)
-			{
-				isExerciseRunning = false;
-				Debug.Log($"Exercice terminé en {elapsedTime:F2} secondes !");	
-			}
-		}
+    void Update()
+    {
+        if (!isExerciseRunning)
+            return;
 
-	}
+        elapsedTime += Time.deltaTime;
+
+        // Vérifier si tous les objets sont correctement placés
+        bool allPlaced = true;
+        foreach (var obj in exerciseObjects)
+        {
+            if (!obj.isPlacedCorrectly)
+            {
+                allPlaced = false;
+                break;
+            }
+        }
+
+        if (allPlaced)
+        {
+            isExerciseRunning = false;
+            Debug.Log($"[ExerciseManager] Exercice terminé en {elapsedTime:F2} secondes !");
+        }
+    }
 }
