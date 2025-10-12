@@ -142,7 +142,11 @@ public class ExerciseManager : MonoBehaviour
 			elapsedTime += Time.deltaTime;
 
 			if (timerText != null)
-				timerText.text = $"Temps : {elapsedTime:F1}s";
+			{
+				int minutes = Mathf.FloorToInt(elapsedTime / 60f);
+				int seconds = Mathf.FloorToInt(elapsedTime % 60f);
+				timerText.text = $"{minutes:00}:{seconds:00}";
+			}
 			
 			// Vérifier si tous les objets sont placés
 			bool allPlaced = true;
