@@ -255,7 +255,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -353,9 +353,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   expectedObjectName: Banana
-  correctColor: {r: 0, g: 0, b: 1, a: 1}
-  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  hookRenderer: {fileID: 113991147}
   defaultColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverCorrectColor: {r: 0, g: 0, b: 1, a: 1}
+  hoverWrongColor: {r: 1, g: 0, b: 0, a: 1}
   audioSource: {fileID: 113991148}
   correctSound: {fileID: 8300000, guid: 9b79dabe2e8be40db94916a19dfc68a9, type: 3}
   wrongSound: {fileID: 8300000, guid: 8ab5c2d68ed8c4b9491f8330053fe319, type: 3}
@@ -980,6 +981,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: f99df1970d4b71441a320ce6acc52709, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: f99df1970d4b71441a320ce6acc52709, type: 3}
+      propertyPath: m_TagString
+      value: ExerciseObject
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: f99df1970d4b71441a320ce6acc52709, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1764,7 +1769,7 @@ Transform:
   m_GameObject: {fileID: 755597459}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.28796235, z: -0, w: 0.9576418}
-  m_LocalPosition: {x: 7.985, y: 2.589, z: -18.235}
+  m_LocalPosition: {x: 7.984, y: 2.231, z: -18.183}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1848,7 +1853,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -1946,9 +1951,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   expectedObjectName: Book
-  correctColor: {r: 0, g: 0, b: 1, a: 1}
-  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  hookRenderer: {fileID: 755597462}
   defaultColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverCorrectColor: {r: 0, g: 0, b: 1, a: 1}
+  hoverWrongColor: {r: 1, g: 0, b: 0, a: 1}
   audioSource: {fileID: 755597463}
   correctSound: {fileID: 8300000, guid: 9b79dabe2e8be40db94916a19dfc68a9, type: 3}
   wrongSound: {fileID: 8300000, guid: 8ab5c2d68ed8c4b9491f8330053fe319, type: 3}
@@ -2065,7 +2071,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -2163,9 +2169,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   expectedObjectName: Rose_Red
-  correctColor: {r: 0, g: 0, b: 1, a: 1}
-  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  hookRenderer: {fileID: 772059683}
   defaultColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverCorrectColor: {r: 0, g: 0, b: 1, a: 1}
+  hoverWrongColor: {r: 1, g: 0, b: 0, a: 1}
   audioSource: {fileID: 772059684}
   correctSound: {fileID: 8300000, guid: 9b79dabe2e8be40db94916a19dfc68a9, type: 3}
   wrongSound: {fileID: 8300000, guid: 8ab5c2d68ed8c4b9491f8330053fe319, type: 3}
@@ -2585,6 +2592,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 461f0170c82b53340a9812199b63bbd4, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 461f0170c82b53340a9812199b63bbd4, type: 3}
+      propertyPath: m_TagString
+      value: ExerciseObject
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 461f0170c82b53340a9812199b63bbd4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3974,7 +3985,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -4072,9 +4083,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   expectedObjectName: Laptop
-  correctColor: {r: 0, g: 0, b: 1, a: 1}
-  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  hookRenderer: {fileID: 1186856579}
   defaultColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverCorrectColor: {r: 0, g: 0, b: 1, a: 1}
+  hoverWrongColor: {r: 1, g: 0, b: 0, a: 1}
   audioSource: {fileID: 1186856580}
   correctSound: {fileID: 8300000, guid: 9b79dabe2e8be40db94916a19dfc68a9, type: 3}
   wrongSound: {fileID: 8300000, guid: 8ab5c2d68ed8c4b9491f8330053fe319, type: 3}
@@ -4093,6 +4105,10 @@ PrefabInstance:
     - target: {fileID: 117720, guid: 35e7ce7e1bb8eeb4f8e896fdfa8176db, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 117720, guid: 35e7ce7e1bb8eeb4f8e896fdfa8176db, type: 3}
+      propertyPath: m_TagString
+      value: ExerciseObject
       objectReference: {fileID: 0}
     - target: {fileID: 493332, guid: 35e7ce7e1bb8eeb4f8e896fdfa8176db, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5029,7 +5045,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -5127,9 +5143,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   expectedObjectName: Basketball
-  correctColor: {r: 0, g: 0, b: 1, a: 1}
-  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  hookRenderer: {fileID: 1739019418}
   defaultColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverCorrectColor: {r: 0, g: 0, b: 1, a: 1}
+  hoverWrongColor: {r: 1, g: 0, b: 0, a: 1}
   audioSource: {fileID: 1739019419}
   correctSound: {fileID: 8300000, guid: 9b79dabe2e8be40db94916a19dfc68a9, type: 3}
   wrongSound: {fileID: 8300000, guid: 8ab5c2d68ed8c4b9491f8330053fe319, type: 3}
@@ -5305,6 +5322,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4833647557030283328, guid: 25f6b3f9347e83047bc8481037fdb53b,
+        type: 3}
+      propertyPath: m_TagString
+      value: ExerciseObject
       objectReference: {fileID: 0}
     - target: {fileID: 5214957792632886010, guid: 25f6b3f9347e83047bc8481037fdb53b,
         type: 3}
@@ -6291,6 +6313,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 683413156391347124, guid: 6855e18bc9b59c049b11aee8e90bca40,
+        type: 3}
+      propertyPath: m_TagString
+      value: ExerciseObject
       objectReference: {fileID: 0}
     - target: {fileID: 4301710467432037121, guid: 6855e18bc9b59c049b11aee8e90bca40,
         type: 3}
