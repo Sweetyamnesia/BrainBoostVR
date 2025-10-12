@@ -17,7 +17,10 @@ public class Hook : MonoBehaviour
 
 	private GameObject currentObject;   // Objet actuellement proche du hook
 	private bool hasPlayedSound = false;
-    private bool isObjectPlaced = false;
+	private bool isObjectPlaced = false;
+
+	[Header("Manager")]
+	public ExerciseManager exerciseManager;
 
     private void Start()
     {
@@ -56,24 +59,30 @@ public class Hook : MonoBehaviour
     // Appeler cette fonction quand l’objet est relâché
     public void TryPlaceObject(GameObject obj)
     {
-        if (currentObject == null||obj != currentObject) return;
+        if (obj != currentObject) return;
 
 		bool isCorrect = obj.name.Contains(expectedObjectName);
-		isObjectPlaced = isCorrect;
         
-		if (audioSource != null && !hasPlayedSound)
-        {
-            AudioClip clip = isCorrect ? correctSound : wrongSound;
-			if (clip != null)
-				audioSource.PlayOneShot(clip);
+		if (!hasPlayedSound)
+		{
+			if (audioSource != null)
+				audioSource.PlayOneShot(isCorrect ? correctSound : wrongSound);
 			hasPlayedSound = true;
-        }
+		}
 
         // Fixer la couleur finale après placement
         if (hookRenderer != null)
             hookRenderer.material.color = isCorrect ? hoverCorrectColor : hoverWrongColor;
 
-        isObjectPlaced = isCorrect;
+		isObjectPlaced = isCorrect;
+
+		// Mettre à jour l'ExerciseManager
+		if (isCorrect && exerciseManager != null)
+		{
+			var exerciseObj = exerciseManager.exerciseObjects.Find(x => x.objectRef == obj);
+			if (exerciseObj != null)
+				exerciseObj.isPlacedCorrectly = true;
+		}	
     }
 
     private void UpdateHookColor()
