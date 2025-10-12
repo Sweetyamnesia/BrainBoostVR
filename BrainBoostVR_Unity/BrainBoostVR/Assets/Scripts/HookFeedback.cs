@@ -6,43 +6,33 @@ public class Hook : MonoBehaviour
     [Header("Hook settings")]
     public string expectedObjectName;   // Nom attendu de l'objet
     public Renderer hookRenderer;       // Renderer du hook pour changer la couleur
-    public Color defaultColor = Color.gray;
-    public Color hoverCorrectColor = Color.blue;
-    public Color hoverWrongColor = Color.red;
+    public Color defaultColor = new Color(1, 1, 1, 0f);
+    public Color hoverCorrectColor = new Color(0, 0, 1, 0.6f);
+	public Color hoverWrongColor = new Color(1, 0, 0, 0.6f);
 
     [Header("Audio")]
     public AudioSource audioSource;     // AudioSource attachée au hook ou à un GameObject parent
     public AudioClip correctSound;
-    public AudioClip wrongSound;
+	public AudioClip wrongSound;
+	
+	[Header("Manager")]
+	public ExerciseManager exerciseManager;
 
 	private GameObject currentObject;   // Objet actuellement proche du hook
 	private bool hasPlayedSound = false;
 	private bool isObjectPlaced = false;
 
-	[Header("Manager")]
-	public ExerciseManager exerciseManager;
-
     private void Start()
     {
         if (hookRenderer != null)
             hookRenderer.material.color = defaultColor;
-
-        if (audioSource == null)
-            Debug.LogWarning("[Hook] Pas d'AudioSource assignée !");
     }
 
     private void OnTriggerEnter(Collider other)
     {
-		if (other.CompareTag("ExerciseObject")) return;
+		if (!other.CompareTag("ExerciseObject")) return;
 
 		currentObject = other.gameObject;
-		hasPlayedSound = false;
-        UpdateHookColor();
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-		if (other.CompareTag("ExerciseObject")) return;
         UpdateHookColor();
     }
 
@@ -51,9 +41,9 @@ public class Hook : MonoBehaviour
 		if (!other.CompareTag("ExerciseObject")) return;
 		currentObject = null;
 		hasPlayedSound = false;	
-        
+
 		if (hookRenderer != null)
-                hookRenderer.material.color = defaultColor;
+            hookRenderer.material.color = defaultColor;
     }
 
     // Appeler cette fonction quand l’objet est relâché
@@ -62,11 +52,11 @@ public class Hook : MonoBehaviour
         if (obj != currentObject) return;
 
 		bool isCorrect = obj.name.Contains(expectedObjectName);
-        
-		if (!hasPlayedSound)
+		Debug.Log($"[HOOK] TryPlaceObject() -> {obj.name} | correct = {isCorrect}");
+
+		if (!hasPlayedSound && audioSource != null)
 		{
-			if (audioSource != null)
-				audioSource.PlayOneShot(isCorrect ? correctSound : wrongSound);
+			audioSource.PlayOneShot(isCorrect ? correctSound : wrongSound);
 			hasPlayedSound = true;
 		}
 
@@ -74,15 +64,14 @@ public class Hook : MonoBehaviour
         if (hookRenderer != null)
             hookRenderer.material.color = isCorrect ? hoverCorrectColor : hoverWrongColor;
 
-		isObjectPlaced = isCorrect;
-
 		// Mettre à jour l'ExerciseManager
 		if (isCorrect && exerciseManager != null)
 		{
 			var exerciseObj = exerciseManager.exerciseObjects.Find(x => x.objectRef == obj);
 			if (exerciseObj != null)
 				exerciseObj.isPlacedCorrectly = true;
-		}	
+		}
+		isObjectPlaced = isCorrect;	
     }
 
     private void UpdateHookColor()

@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-[RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable))]
+[RequireComponent(typeof(XRGrabInteractable))]
 public class PlaceableObject : MonoBehaviour
 {
-    private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
+    private XRGrabInteractable grabInteractable;
 
     private void Awake()
     {
         // Récupère le composant XRGrabInteractable
-        grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        grabInteractable = GetComponent<XRGrabInteractable>();
 
         // 🔹 Événement déclenché quand l’objet est lâché
         grabInteractable.selectExited.AddListener(OnRelease);
@@ -25,7 +26,7 @@ public class PlaceableObject : MonoBehaviour
     private void OnRelease(SelectExitEventArgs args)
     {
         // 🔹 Vérifie les colliders proches de la position actuelle de l’objet
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.1f);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.15f);
         foreach (var collider in colliders)
         {
             Hook hook = collider.GetComponent<Hook>();
