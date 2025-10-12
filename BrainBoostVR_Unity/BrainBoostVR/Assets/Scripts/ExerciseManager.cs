@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 [System.Serializable] // permet de voir chaque objet dans l’inspecteur Unity
@@ -20,7 +21,12 @@ public class ExerciseManager : MonoBehaviour
     public List<ExerciseObject> exerciseObjects = new List<ExerciseObject>();  // liste des objets à placer
 
     private bool isExerciseRunning = false;
-    private float elapsedTime = 0f;
+	private float elapsedTime = 0f;
+
+	public float maxDuration = 300f;
+	
+	[Header("UI")]
+	public TMPro.TextMeshProUGUI timerText;
 
     void Awake()
 	{
@@ -135,6 +141,9 @@ public class ExerciseManager : MonoBehaviour
 		{
 			elapsedTime += Time.deltaTime;
 
+			if (timerText != null)
+				timerText.text = $"Temps : {elapsedTime:F1}s";
+			
 			// Vérifier si tous les objets sont placés
 			bool allPlaced = true;
 			foreach (var obj in exerciseObjects)
@@ -150,6 +159,12 @@ public class ExerciseManager : MonoBehaviour
 			{
 				isExerciseRunning = false;
 				Debug.Log($"[EXERCISE] Exercice terminé en {elapsedTime:F2} secondes !");
+			}
+
+			if (elapsedTime >= maxDuration)
+			{
+				isExerciseRunning = false;
+				Debug.Log($"[EXERCISE] Temsp écoulé ({maxDuration}s). Fin de l'exercice.");
 			}
 		}
 	}
