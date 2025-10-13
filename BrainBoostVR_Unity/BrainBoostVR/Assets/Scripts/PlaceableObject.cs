@@ -1,40 +1,43 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-[RequireComponent(typeof(XRGrabInteractable))]
+[RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable))]
 public class PlaceableObject : MonoBehaviour
 {
-    private XRGrabInteractable grabInteractable;
+    private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
+
+    [Header("Detection Settings")]
+    public float detectionRadius = 0.2f; // ajustable selon la taille des hooks
 
     private void Awake()
     {
-        // Récupère le composant XRGrabInteractable
-        grabInteractable = GetComponent<XRGrabInteractable>();
-
-        // 🔹 Événement déclenché quand l’objet est lâché
+        grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
         grabInteractable.selectExited.AddListener(OnRelease);
     }
 
     private void OnDestroy()
     {
-        // 🔹 Toujours nettoyer les listeners
         if (grabInteractable != null)
             grabInteractable.selectExited.RemoveListener(OnRelease);
     }
 
     private void OnRelease(SelectExitEventArgs args)
     {
-        // 🔹 Vérifie les colliders proches de la position actuelle de l’objet
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.15f);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRadius);
         foreach (var collider in colliders)
         {
             Hook hook = collider.GetComponent<Hook>();
             if (hook != null)
             {
                 hook.TryPlaceObject(gameObject);
-                break;
+                break; // un seul hook par release
             }
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
 }

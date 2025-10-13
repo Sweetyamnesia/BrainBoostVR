@@ -1,148 +1,134 @@
 using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 
-[System.Serializable] // permet de voir chaque objet dans l’inspecteur Unity
+[System.Serializable]
 public class ExerciseObject
 {
-    public GameObject objectRef;    // l’objet à manipuler
-    public Transform targetPosition; // où il doit être placé
-    public bool isPlacedCorrectly;   // suivi de l’état
+    public GameObject objectRef;
+    public Transform targetPosition;
+    public bool isPlacedCorrectly;
 }
 
 public class ExerciseManager : MonoBehaviour
 {
     [Header("Audio")]
-    public AudioSource audioSource;               // assigné via l’inspecteur
-    public AudioClip instructionsAudio;           // assigné via l’inspecteur
+    public AudioSource audioSource;
+    public AudioClip instructionsAudio;
 
-	[Header("Exercise Objects")]
-	public List<ExerciseObject> exerciseObjects = new List<ExerciseObject>();  // liste des objets à placer
+    [Header("Exercise Objects")]
+    public List<ExerciseObject> exerciseObjects = new List<ExerciseObject>();
 
-	[Header("UI")]
-	public TMPro.TextMeshProUGUI timerText;
+    [Header("UI")]
+    public TMPro.TextMeshProUGUI timerText;
 
-	[Header("Hooks")]
-	public List<Hook> hookList;
-	
-	private bool isExerciseRunning = false;
-	private float elapsedTime = 0f;
+    [Header("Hooks")]
+    public List<Hook> hookList;
 
-	public float maxDuration = 300f;
+    private bool isExerciseRunning = false;
+    private float timeRemaining = 0f;
+    public float maxDuration = 300f;
 
     void Awake()
-	{
+    {
         if (exerciseObjects.Count == 0)
-		{
-			Debug.LogWarning("[EXERCISE] Aucun objet défini dans la liste.");
-		}
-		// Désactiver tous les objets avant même que la scène ne s'affiche
+            Debug.LogWarning("[EXERCISE] Aucun objet défini dans la liste.");
+
         foreach (var obj in exerciseObjects)
         {
-			if (obj.objectRef != null)
-			{
-				obj.objectRef.SetActive(false);
-			}
-			
-			// Désactive tous les hooks visuellement
-			foreach (var hook in hookList)
-			{
-				if (hook != null)
-					hook.gameObject.SetActive(true); //visible dans la scène mais non visible visuellement
-			}
+            if (obj.objectRef != null)
+                obj.objectRef.SetActive(false);
+        }
+
+        foreach (var hook in hookList)
+        {
+            if (hook != null && hook.hookRenderer != null)
+                hook.hookRenderer.enabled = false; // hooks désactivés visuellement
         }
     }
 
     public void StartExercise()
-	{
-		Debug.Log("[EXERCISE] Démarrage de l'exercice (lecture audio).");
-		if (audioSource != null && instructionsAudio != null)
-		{
-			audioSource.clip = instructionsAudio;
-			StartCoroutine(PlayInstructionsAndStartTimer());
-		}
-		else
-		{
-			Debug.LogWarning("[EXERCISE] Pas d'audio - activation immédiate des objets.");
-			ActivateExerciseObjects();
-			StartTimer();
-		}
-	}
+    {
+        Debug.Log("[EXERCISE] Démarrage de l'exercice (lecture audio).");
 
-	private IEnumerator PlayInstructionsAndStartTimer()
-	{
-		audioSource.Play();
-		Debug.Log("[EXERCISE] Lecture de l'audio...");
+        if (audioSource != null && instructionsAudio != null)
+            StartCoroutine(PlayInstructionsAndStartTimer());
+        else
+        {
+            Debug.LogWarning("[EXERCISE] Pas d'audio - activation immédiate des objets.");
+            ActivateExerciseObjects();
+            StartTimer();
+        }
+    }
 
-		//attendre la fin de l'audio
-		yield return new WaitForSeconds(audioSource.clip.length);
+    private IEnumerator PlayInstructionsAndStartTimer()
+    {
+        audioSource.clip = instructionsAudio;
+        audioSource.Play();
+        Debug.Log("[EXERCISE] Lecture de l'audio...");
 
-		Debug.Log("[EXERCISE] Audio terminé. Activation des objets et du chrono");
-		ActivateExerciseObjects();
-		StartTimer();
-	}
-	
-	private void StartTimer()
-	{
-		elapsedTime = maxDuration;
-		isExerciseRunning = true;
-	}
+        yield return new WaitForSeconds(audioSource.clip.length);
 
+        Debug.Log("[EXERCISE] Audio terminé. Activation des objets et du chrono");
+        ActivateExerciseObjects();
+        StartTimer();
+    }
 
-	private void ActivateExerciseObjects()
-	{
-    	foreach (var obj in exerciseObjects)
-		{
-			if (obj.objectRef != null)
-				obj.objectRef.SetActive(true);
-		}
-	}
+    private void StartTimer()
+    {
+        timeRemaining = maxDuration;
+        isExerciseRunning = true;
+    }
 
-	void Update()
-	{
-		if (!isExerciseRunning) return;
+    private void ActivateExerciseObjects()
+    {
+        foreach (var obj in exerciseObjects)
+        {
+            if (obj.objectRef != null)
+                obj.objectRef.SetActive(true);
+        }
+    }
 
-		// décompte du chrono
-		elapsedTime -= Time.deltaTime;
-		if (elapsedTime <= 0f)
-		{
-			elapsedTime = 0f;
-			isExerciseRunning = false;
-			Debug.Log("Temps écoulé !");
-		}
+    void Update()
+    {
+        if (!isExerciseRunning) return;
 
-		UpdateTimerUI();
-		CheckExerciseCompletion();
-	}
+        timeRemaining -= Time.deltaTime;
+        if (timeRemaining <= 0f)
+        {
+            timeRemaining = 0f;
+            isExerciseRunning = false;
+            Debug.Log("[EXERCISE] Temps écoulé !");
+        }
 
-	private void UpdateTimerUI()
-	{
-		if (timerText == null) return;
-		int minutes = Mathf.FloorToInt(elapsedTime / 60f);
-		int seconds = Mathf.FloorToInt(elapsedTime % 60f);
-		timerText.text = $"{minutes:00}:{seconds:00}";
-	}
+        UpdateTimerUI();
+        CheckExerciseCompletion();
+    }
 
-	private void CheckExerciseCompletion()
-	{
-		// Vérifier si tous les objets sont placés
-		bool allPlaced = true;
-		foreach (var obj in exerciseObjects)
-		{
-			if (!obj.isPlacedCorrectly)
-			{
-				allPlaced = false;
-				break;
-			}
-		}
+    private void UpdateTimerUI()
+    {
+        if (timerText == null) return;
+        int minutes = Mathf.FloorToInt(timeRemaining / 60f);
+        int seconds = Mathf.FloorToInt(timeRemaining % 60f);
+        timerText.text = $"{minutes:00}:{seconds:00}";
+    }
 
-		if (allPlaced)
-		{
-			isExerciseRunning = false;
-			Debug.Log($"[EXERCISE] Exercice terminé en {maxDuration - elapsedTime:F2} secondes !");
-		}
-	}
-			
+    private void CheckExerciseCompletion()
+    {
+        bool allPlaced = true;
+        foreach (var obj in exerciseObjects)
+        {
+            if (!obj.isPlacedCorrectly)
+            {
+                allPlaced = false;
+                break;
+            }
+        }
+
+        if (allPlaced && isExerciseRunning)
+        {
+            isExerciseRunning = false;
+            Debug.Log($"[EXERCISE] Exercice terminé en {maxDuration - timeRemaining:F2} secondes !");
+        }
+    }
 }
-

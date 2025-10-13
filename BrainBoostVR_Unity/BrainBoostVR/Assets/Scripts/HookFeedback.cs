@@ -4,81 +4,110 @@ using UnityEngine;
 public class Hook : MonoBehaviour
 {
     [Header("Hook settings")]
-    public string expectedObjectName;   // Nom attendu de l'objet
-    public Renderer hookRenderer;       // Renderer du hook pour changer la couleur
+    public string expectedObjectName;  
+    public Renderer hookRenderer;       
     public Color defaultColor = new Color(1, 1, 1, 0f);
     public Color hoverCorrectColor = new Color(0, 0, 1, 0.6f);
-	public Color hoverWrongColor = new Color(1, 0, 0, 0.6f);
+    public Color hoverWrongColor = new Color(1, 0, 0, 0.6f);
 
     [Header("Audio")]
-    public AudioSource audioSource;     // AudioSource attachée au hook ou à un GameObject parent
+    public AudioSource audioSource;     
     public AudioClip correctSound;
-	public AudioClip wrongSound;
-	
-	[Header("Manager")]
-	public ExerciseManager exerciseManager;
+    public AudioClip wrongSound;
 
-	private GameObject currentObject;   // Objet actuellement proche du hook
-	private bool hasPlayedSound = false;
-	private bool isObjectPlaced = false;
+    [Header("Visibility")]
+    public Transform playerHead;
+    public float appearDistance = 1.2f;
+
+    [Header("Manager")]
+    public ExerciseManager exerciseManager;
+
+    private GameObject currentObject;   
+    private bool hasPlayedSound = false;
+    private bool isObjectPlaced = false;
+    private bool isVisible = false;
 
     private void Start()
     {
         if (hookRenderer != null)
+        {
+            hookRenderer.enabled = false;
             hookRenderer.material.color = defaultColor;
+        }
+    }
+
+    private void Update()
+    {
+        HandleVisibility();
+    }
+
+    private void HandleVisibility()
+    {
+        if (playerHead == null || hookRenderer == null)
+            return;
+
+        float dist = Vector3.Distance(playerHead.position, transform.position);
+        bool shouldBeVisible = dist < appearDistance;
+
+        if (shouldBeVisible != isVisible)
+        {
+            isVisible = shouldBeVisible;
+            hookRenderer.enabled = isVisible;
+
+            if (!isVisible)
+                hookRenderer.material.color = defaultColor;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-		if (!other.CompareTag("ExerciseObject")) return;
+        if (!other.CompareTag("ExerciseObject")) return;
 
-		currentObject = other.gameObject;
-        UpdateHookColor();
+        currentObject = other.gameObject;
+        hasPlayedSound = false;
+
+        if (hookRenderer != null)
+            hookRenderer.material.color = defaultColor;
     }
 
     private void OnTriggerExit(Collider other)
     {
-		if (!other.CompareTag("ExerciseObject")) return;
-		currentObject = null;
-		hasPlayedSound = false;	
+        if (!other.CompareTag("ExerciseObject")) return;
 
-		if (hookRenderer != null)
+        if (other.gameObject == currentObject)
+            currentObject = null;
+
+        hasPlayedSound = false;
+
+        if (hookRenderer != null)
             hookRenderer.material.color = defaultColor;
     }
 
-    // Appeler cette fonction quand l’objet est relâché
     public void TryPlaceObject(GameObject obj)
     {
         if (obj != currentObject) return;
 
-		bool isCorrect = obj.name.Contains(expectedObjectName);
-		Debug.Log($"[HOOK] TryPlaceObject() -> {obj.name} | correct = {isCorrect}");
+        bool isCorrect = obj.name.Contains(expectedObjectName);
+        Debug.Log($"[HOOK] TryPlaceObject() -> {obj.name} | correct = {isCorrect}");
 
-		if (!hasPlayedSound && audioSource != null)
-		{
-			audioSource.PlayOneShot(isCorrect ? correctSound : wrongSound);
-			hasPlayedSound = true;
-		}
+        if (!hasPlayedSound && audioSource != null)
+        {
+            audioSource.PlayOneShot(isCorrect ? correctSound : wrongSound);
+            hasPlayedSound = true;
+        }
 
-        // Fixer la couleur finale après placement
+        // Couleur finale
         if (hookRenderer != null)
             hookRenderer.material.color = isCorrect ? hoverCorrectColor : hoverWrongColor;
 
-		// Mettre à jour l'ExerciseManager
-		if (isCorrect && exerciseManager != null)
-		{
-			var exerciseObj = exerciseManager.exerciseObjects.Find(x => x.objectRef == obj);
-			if (exerciseObj != null)
-				exerciseObj.isPlacedCorrectly = true;
-		}
-		isObjectPlaced = isCorrect;	
-    }
+        isObjectPlaced = isCorrect;
 
-    private void UpdateHookColor()
-    {
-        if (hookRenderer == null || currentObject == null) return;
-
-        bool isCorrect = currentObject.name.Contains(expectedObjectName);
-        hookRenderer.material.color = isCorrect ? hoverCorrectColor : hoverWrongColor;
+        // Mettre à jour ExerciseManager
+        if (isCorrect && exerciseManager != null)
+        {
+            var exerciseObj = exerciseManager.exerciseObjects.Find(x => x.objectRef == obj);
+            if (exerciseObj != null)
+                exerciseObj.isPlacedCorrectly = true;
+        }
     }
 }
