@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -30,48 +30,101 @@ public class ScoreManager : MonoBehaviour
     // Ajouter des points
     public void AddPoints(int points = 1)
     {
-        // Logique à compléter : ajouter points, limiter à maxScore, déclencher OnScoreChanged
+        if (!exerciseRunning) return;
+
+        score += points;
+
+        if (score > maxScore)
+            score = maxScore;
+
+        Debug.Log($"[SCORE] Objet correctement placé. Score actuel : {score} / {maxScore}");
+        OnScoreChanged?.Invoke(score);
+
+        if (score >= maxScore)
+        {
+            EndSession();
+        }
     }
 
     // Retirer des points (optionnel)
     public void SubtractPoints(int points = 1)
     {
-        // Logique à compléter : retirer points, ne pas descendre en dessous de 0, déclencher OnScoreChanged
+        if (!exerciseRunning) return;
+
+        score -= points;
+
+        if (score < 0)
+            score = 0;
+
+        Debug.Log($"[SCORE] Points retirés. Score actuel : {score} / {maxScore}");
+        OnScoreChanged?.Invoke(score);
     }
 
-    // Remettre le score à zéro pour une nouvelle session
+    // Réinitialiser le score pour une nouvelle session
     public void ResetScore()
     {
-        // Logique à compléter : score = 0, sessionTime = 0, exerciseRunning = false, déclencher OnScoreChanged
+        score = 0;
+        sessionTime = 0f;
+        exerciseRunning = false;
+
+        Debug.Log("[SCORE] Score réinitialisé pour nouvelle session.");
+        OnScoreChanged?.Invoke(score);
     }
 
     // Démarrer une session
     public void StartSession()
     {
-        // Logique à compléter : exerciseRunning = true, score = 0, sessionTime = 0, déclencher OnScoreChanged
+        exerciseRunning = true;
+        score = 0;
+        sessionTime = 0f;
+
+        Debug.Log("[SCORE] Session commencée.");
+        OnScoreChanged?.Invoke(score);
     }
 
     // Terminer une session
     public void EndSession()
     {
-        // Logique à compléter : exerciseRunning = false, créer SessionRecord, l'ajouter à l'historique, déclencher OnExerciseFinished
+        if (!exerciseRunning) return;
+
+        exerciseRunning = false;
+
+        SessionRecord record = new SessionRecord()
+        {
+            score = score,
+            timeSpent = sessionTime,
+            objectsPlaced = score
+        };
+
+        sessionHistory.Add(record);
+
+        Debug.Log($"[SCORE] Session terminée. Score : {score} / {maxScore}, Temps : {sessionTime:F2} s, Objets placés : {score}");
+        OnExerciseFinished?.Invoke(record);
     }
 
     // Mettre à jour le temps de session (appelé depuis ExerciseManager)
     public void UpdateSessionTime(float deltaTime)
     {
-        // Logique à compléter : incrémenter sessionTime si exerciseRunning == true, vérifier conditions d'arrêt
+        if (!exerciseRunning) return;
+
+        sessionTime += deltaTime;
+
+        // Vérification si le score a atteint le maximum
+        if (score >= maxScore)
+        {
+            EndSession();
+        }
     }
 
     // Mettre à jour l'UI ou panneau récapitulatif
     public void UpdateUI()
     {
-        // Logique à compléter : score, temps, objets placés
+        // À implémenter : mettre à jour score, temps, objets placés dans l'UI
     }
 
     // Préparer envoi vers API / Firebase (à implémenter plus tard)
     public void SyncWithAPI()
     {
-        // Logique à compléter : préparer JSON et POST
+        // À implémenter : préparer JSON et envoyer via POST
     }
 }
