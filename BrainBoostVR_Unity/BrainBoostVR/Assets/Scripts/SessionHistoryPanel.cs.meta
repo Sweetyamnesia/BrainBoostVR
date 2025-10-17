@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e4fbf880c1eea4bf48484e6627a3f669
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - contentParent: {instanceID: 0}
+  - sessionEntryPrefab: {instanceID: 0}
+  - closeButton: {instanceID: 0}
+  - scoreManager: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

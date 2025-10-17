@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
-    // Variables principales
+    // ---------------- Variables principales ----------------
     public int score = 0;
     public int maxScore = 5;
     public float sessionTime = 0f;
@@ -12,11 +12,11 @@ public class ScoreManager : MonoBehaviour
 
     public List<SessionRecord> sessionHistory = new List<SessionRecord>();
 
-    // Events
+    // ---------------- Events ----------------
     public event Action<int> OnScoreChanged;                 // déclenché à chaque changement de score
     public event Action<SessionRecord> OnExerciseFinished;   // déclenché à la fin d'une session
 
-    // Classe pour stocker les sessions
+    // ---------------- Classe pour les sessions ----------------
     [Serializable]
     public class SessionRecord
     {
@@ -44,20 +44,6 @@ public class ScoreManager : MonoBehaviour
         {
             EndSession();
         }
-    }
-
-    // Retirer des points (optionnel)
-    public void SubtractPoints(int points = 1)
-    {
-        if (!exerciseRunning) return;
-
-        score -= points;
-
-        if (score < 0)
-            score = 0;
-
-        Debug.Log($"[SCORE] Points retirés. Score actuel : {score} / {maxScore}");
-        OnScoreChanged?.Invoke(score);
     }
 
     // Réinitialiser le score pour une nouvelle session
@@ -103,28 +89,16 @@ public class ScoreManager : MonoBehaviour
     }
 
     // Mettre à jour le temps de session (appelé depuis ExerciseManager)
-    public void UpdateSessionTime(float deltaTime)
+    public void UpdateSessionTime(float elapsedTime)
     {
         if (!exerciseRunning) return;
 
-        sessionTime += deltaTime;
-
-        // Vérification si le score a atteint le maximum
-        if (score >= maxScore)
-        {
-            EndSession();
-        }
-    }
-
-    // Mettre à jour l'UI ou panneau récapitulatif
-    public void UpdateUI()
-    {
-        // À implémenter : mettre à jour score, temps, objets placés dans l'UI
+        sessionTime = elapsedTime;
     }
 
     // Préparer envoi vers API / Firebase (à implémenter plus tard)
     public void SyncWithAPI()
     {
-        // À implémenter : préparer JSON et envoyer via POST
+        // Logique à compléter : préparer JSON et envoyer via POST
     }
 }

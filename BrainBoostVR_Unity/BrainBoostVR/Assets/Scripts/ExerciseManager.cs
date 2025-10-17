@@ -7,7 +7,7 @@ public class ExerciseObject
 {
     public GameObject objectRef;
     public Transform targetPosition;
-    public bool isPlacedCorrectly;
+    public bool isPlacedCorrectly; // mis à jour automatiquement par PlaceableObject
 }
 
 public class ExerciseManager : MonoBehaviour
@@ -22,8 +22,11 @@ public class ExerciseManager : MonoBehaviour
     [Header("UI")]
     public TMPro.TextMeshProUGUI timerText;
 
-    [Header("Hooks")]
-    public List<Hook> hookList;
+    [Header("UI Panels")]
+    public FinalGamePanel finalGamePanel;
+
+    [Header("Score")]
+    public ScoreManager scoreManager;
 
     private bool isExerciseRunning = false;
     private float timeRemaining = 0f;
@@ -35,41 +38,30 @@ public class ExerciseManager : MonoBehaviour
             Debug.LogWarning("[EXERCISE] Aucun objet défini dans la liste.");
 
         foreach (var obj in exerciseObjects)
-        {
             if (obj.objectRef != null)
                 obj.objectRef.SetActive(false);
-        }
-
-        foreach (var hook in hookList)
-        {
-            if (hook != null && hook.hookRenderer != null)
-                hook.hookRenderer.enabled = false; // hooks désactivés visuellement
-        }
     }
 
     public void StartExercise()
     {
-        Debug.Log("[EXERCISE] Démarrage de l'exercice (lecture audio).");
-
         if (audioSource != null && instructionsAudio != null)
             StartCoroutine(PlayInstructionsAndStartTimer());
         else
         {
-            Debug.LogWarning("[EXERCISE] Pas d'audio - activation immédiate des objets.");
             ActivateExerciseObjects();
             StartTimer();
         }
+
+        if(scoreManager != null)
+            scoreManager.StartSession();
     }
 
     private IEnumerator PlayInstructionsAndStartTimer()
     {
         audioSource.clip = instructionsAudio;
         audioSource.Play();
-        Debug.Log("[EXERCISE] Lecture de l'audio...");
-
         yield return new WaitForSeconds(audioSource.clip.length);
 
-        Debug.Log("[EXERCISE] Audio terminé. Activation des objets et du chrono");
         ActivateExerciseObjects();
         StartTimer();
     }
@@ -83,22 +75,25 @@ public class ExerciseManager : MonoBehaviour
     private void ActivateExerciseObjects()
     {
         foreach (var obj in exerciseObjects)
-        {
             if (obj.objectRef != null)
                 obj.objectRef.SetActive(true);
-        }
     }
 
     void Update()
     {
         if (!isExerciseRunning) return;
 
+        // Décompte du chrono
         timeRemaining -= Time.deltaTime;
         if (timeRemaining <= 0f)
         {
             timeRemaining = 0f;
             isExerciseRunning = false;
-            Debug.Log("[EXERCISE] Temps écoulé !");
+            EndExercise();
+        }
+        else if(scoreManager != null)
+        {
+            scoreManager.UpdateSessionTime(maxDuration - timeRemaining);
         }
 
         UpdateTimerUI();
@@ -108,6 +103,7 @@ public class ExerciseManager : MonoBehaviour
     private void UpdateTimerUI()
     {
         if (timerText == null) return;
+
         int minutes = Mathf.FloorToInt(timeRemaining / 60f);
         int seconds = Mathf.FloorToInt(timeRemaining % 60f);
         timerText.text = $"{minutes:00}:{seconds:00}";
@@ -115,20 +111,30 @@ public class ExerciseManager : MonoBehaviour
 
     private void CheckExerciseCompletion()
     {
-        bool allPlaced = true;
         foreach (var obj in exerciseObjects)
         {
             if (!obj.isPlacedCorrectly)
-            {
-                allPlaced = false;
-                break;
-            }
+                return; // un objet n'est pas placé, on sort
         }
 
-        if (allPlaced && isExerciseRunning)
+        // Tous les objets sont bien placés
+        isExerciseRunning = false;
+        EndExercise();
+    }
+
+    private void EndExercise()
+    {
+        if(scoreManager != null)
+            scoreManager.EndSession();
+
+        if(finalGamePanel != null && scoreManager != null)
         {
-            isExerciseRunning = false;
-            Debug.Log($"[EXERCISE] Exercice terminé en {maxDuration - timeRemaining:F2} secondes !");
+            int score = scoreManager.score;
+            int objetsTrouves = scoreManager.score;
+            int objetsManquants = scoreManager.maxScore - scoreManager.score;
+            float temps = scoreManager.sessionTime;
+
+            finalGamePanel.DisplayEnd(score, objetsTrouves, objetsManquants, temps);
         }
     }
 }

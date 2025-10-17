@@ -1,32 +1,34 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-[RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable))]
+[RequireComponent(typeof(XRGrabInteractable))]
 public class PlaceableObject : MonoBehaviour
 {
-    private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
-
-    [Header("Detection Settings")]
-    public float detectionRadius = 0.2f; // ajustable selon la taille des hooks
+    private XRGrabInteractable grab;
+    
+    [Header("Hook Detection")]
+    public float detectionRadius = 0.2f; // Distance max pour détecter un hook à la release
 
     private void Awake()
     {
-        grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
-        grabInteractable.selectExited.AddListener(OnRelease);
+        grab = GetComponent<XRGrabInteractable>();
+        grab.selectExited.AddListener(OnRelease);
     }
 
     private void OnDestroy()
     {
-        if (grabInteractable != null)
-            grabInteractable.selectExited.RemoveListener(OnRelease);
+        if (grab != null)
+            grab.selectExited.RemoveListener(OnRelease);
     }
 
     private void OnRelease(SelectExitEventArgs args)
     {
+        // Cherche un hook à proximité
         Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRadius);
-        foreach (var collider in colliders)
+        foreach (var col in colliders)
         {
-            Hook hook = collider.GetComponent<Hook>();
+            HookFinal hook = col.GetComponent<HookFinal>();
             if (hook != null)
             {
                 hook.TryPlaceObject(gameObject);
