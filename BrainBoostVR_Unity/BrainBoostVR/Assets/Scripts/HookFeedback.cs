@@ -6,8 +6,8 @@ public class HookFinal : MonoBehaviour
     [Header("Hook Settings")]
     public string expectedObjectName;  
     public Renderer hookRenderer;
-    public Color hoverCorrectColor = new Color(0f, 0, 1f, 0.6f);
-    public Color hoverWrongColor = new Color(1f, 0, 0, 0.6f);
+    public Color hoverCorrectColor = new Color(0f, 0f, 1f, 0.6f);
+    public Color hoverWrongColor = new Color(1f, 0f, 0f, 0.6f);
 
     [Header("Audio")]
     public AudioSource audioSource;     
@@ -31,6 +31,7 @@ public class HookFinal : MonoBehaviour
         if (hookRenderer != null)
         {
             hookRenderer.enabled = false;
+            hookRenderer.material.color = Color.clear; // 👈 aucun halo par défaut
         }
 
         Collider col = GetComponent<Collider>();
@@ -46,16 +47,26 @@ public class HookFinal : MonoBehaviour
     private void UpdateVisibility()
     {
         if (playerHead == null || hookRenderer == null) return;
-        if (isPlaced) return; // 🔹 Ne rien faire si déjà placé
 
         float dist = Vector3.Distance(playerHead.position, transform.position);
-        bool shouldBeVisible = dist < appearDistance && currentObject != null;
+        bool shouldBeVisible = dist < appearDistance;
 
-        if (shouldBeVisible != isVisible)
+        // 🔹 Si l’objet est déjà placé, le halo doit disparaître définitivement
+        if (isPlaced)
         {
-            isVisible = shouldBeVisible;
-            hookRenderer.enabled = isVisible;
+            hookRenderer.enabled = false;
+            return;
         }
+
+		if (shouldBeVisible != isVisible)
+		{
+			isVisible = shouldBeVisible;
+			hookRenderer.enabled = isVisible;
+		}
+		
+		// 👇 Correction ici : dès qu’on active, on force une couleur invisible
+        if (isVisible)
+            hookRenderer.material.color = Color.clear;
     }
 
     private void UpdateHaloColor()
@@ -73,14 +84,6 @@ public class HookFinal : MonoBehaviour
 
         currentObject = other.gameObject;
         hasPlayedSound = false;
-
-        // ✅ Active le halo seulement à l’entrée de l’objet
-        if (hookRenderer != null)
-        {
-            hookRenderer.enabled = true;
-            bool isCorrect = currentObject.name.Contains(expectedObjectName);
-            hookRenderer.material.color = isCorrect ? hoverCorrectColor : hoverWrongColor;
-        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -89,11 +92,11 @@ public class HookFinal : MonoBehaviour
         if (other.gameObject == currentObject)
             currentObject = null;
 
-        hasPlayedSound = false;
-
-        // 🔹 Désactive le halo quand l’objet quitte le trigger
+        // 👇 Si on s’éloigne du hook, on retire toute couleur
         if (hookRenderer != null && !isPlaced)
-            hookRenderer.enabled = false;
+            hookRenderer.material.color = Color.clear;
+
+        hasPlayedSound = false;
     }
 
     public void TryPlaceObject(GameObject obj)
@@ -102,44 +105,67 @@ public class HookFinal : MonoBehaviour
 
         bool isCorrect = obj.name.Contains(expectedObjectName);
 
-        // 🔊 Son correct / incorrect
-        if (!hasPlayedSound && audioSource != null)
-        {
-            audioSource.PlayOneShot(isCorrect ? correctSound : wrongSound);
-            hasPlayedSound = true;
-        }
+		// 🔊 Jouer le son correspondant
+		if (!hasPlayedSound && audioSource != null)
+		{
+			audioSource.PlayOneShot(isCorrect ? correctSound : wrongSound);
+			hasPlayedSound = true;
+		}
+		
+		if (!isCorrect)
+    	{
+        	if(exerciseManager != null && exerciseManager.scoreManager != null)
+            	exerciseManager.scoreManager.RegisterError();
+    	}
 
-        // 💡 Couleur finale du halo
+        // 💡 Changer la couleur temporairement
         if (hookRenderer != null)
-        {
             hookRenderer.material.color = isCorrect ? hoverCorrectColor : hoverWrongColor;
-        }
 
         if (isCorrect)
         {
-            // ✅ Objet placé correctement
+            // ✅ Marquer l'objet comme placé
             isPlaced = true;
 
+            // 📍 Fixer l’objet à la bonne position
             obj.transform.position = transform.position;
             obj.transform.rotation = transform.rotation;
 
+            // 🚫 Empêcher qu’il soit repris
+            var grab = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+            if (grab != null)
+                grab.enabled = false;
+
             Rigidbody rb = obj.GetComponent<Rigidbody>();
-			if (rb != null) rb.isKinematic = true;
-			
-			var grab = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
-			if (grab != null) grab.enabled = false;
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
 
-            // 🔹 Cache le halo après placement
-            if (hookRenderer != null)
-                hookRenderer.enabled = false;
-
-            // ⚡ Mise à jour du manager
+            // ⚡ Mettre à jour le manager
             if (exerciseManager != null)
             {
-                var exerciseObj = exerciseManager.exerciseObjects.Find(x => x.objectRef == obj);
-                if (exerciseObj != null)
-                    exerciseObj.isPlacedCorrectly = true;
+                var exObj = exerciseManager.exerciseObjects.Find(x => x.objectRef == obj);
+                if (exObj != null)
+                    exObj.isPlacedCorrectly = true;
+
+                if (exerciseManager.scoreManager != null)
+                    exerciseManager.scoreManager.AddPoints(1);
             }
+
+            // 🟦 Cacher le halo après une courte durée
+            if (hookRenderer != null)
+                Invoke(nameof(HideHaloAfterPlacement), 0.5f);
+        }
+    }
+
+    private void HideHaloAfterPlacement()
+    {
+        if (hookRenderer != null)
+        {
+            hookRenderer.material.color = Color.clear;
+            hookRenderer.enabled = false;
         }
     }
 }

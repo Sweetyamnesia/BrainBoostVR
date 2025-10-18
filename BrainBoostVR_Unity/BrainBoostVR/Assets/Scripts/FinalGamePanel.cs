@@ -4,49 +4,79 @@ using UnityEngine.SceneManagement;
 
 public class FinalGamePanel : MonoBehaviour
 {
+    [Header("UI Texts")]
     public TextMeshProUGUI textScore;
-    public TextMeshProUGUI textObjetsTrouves;
-    public TextMeshProUGUI textObjetsManquants;
-	public TextMeshProUGUI textTemps;
+    public TextMeshProUGUI textError;
+    public TextMeshProUGUI textTemps;
 
-	public AudioSource audioSource;
+    [Header("Audio")]
+    public AudioSource audioSource;
 	public AudioClip clickSound;
 
+	public GameObject sessionHistoryPanel;
 
-    public void DisplayEnd(int score, int objetsTrouves, int objetsManquants, float temps)
-    {
-        textScore.text = "Score final: " + score;
-        textObjetsTrouves.text = "Objets trouvés: " + objetsTrouves;
-        textObjetsManquants.text = "Objets manquants: " + objetsManquants;
+	public void DisplayEnd(int score, int errors, float temps)
+	{
+		if (textScore != null)
+			textScore.text = "Score final: " + score;
 
-        int minutes = Mathf.FloorToInt(temps / 60);
-        int secondes = Mathf.FloorToInt(temps % 60);
-        textTemps.text = $"Temps passé: {minutes:00}:{secondes:00}";
+		if (textError != null)
+			textError.text = "Erreurs: " + errors;
 
-        gameObject.SetActive(true);
-    }
+		if (textTemps != null)
+		{
+			int minutes = Mathf.FloorToInt(temps / 60);
+			int secondes = Mathf.FloorToInt(temps % 60);
+			textTemps.text = $"Temps passé: {minutes:00}:{secondes:00}";
+		}
+
+		gameObject.SetActive(true);
+	}
+	
+	public void ShowSessionHistory()
+	{
+		PlayClick();
+		if (sessionHistoryPanel != null)
+			sessionHistoryPanel.SetActive(true);
+	}
 
     public void Restart()
-	{
+    {
         PlayClick();
-		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // Réinitialiser le ScoreManager
+		ScoreManager scoreManager = Object.FindFirstObjectByType<ScoreManager>();
+		if(scoreManager != null)
+			scoreManager.ResetScore();
+
+		// Réinitialiser ExerciseManager
+		ExerciseManager exerciseManager = FindFirstObjectByType<ExerciseManager>();
+		if(exerciseManager != null)
+			exerciseManager.StartExercise();
+
+		// Réinitialiser le panel final
+		gameObject.SetActive(false);
     }
 
     public void Menu()
-	{
+    {
         PlayClick();
-		SceneManager.LoadScene("MenuPrincipal"); // Nom de ta scène menu
+        SceneManager.LoadScene("MenuPrincipal");
     }
 
-	public void Quit()
+    public void Quit()
 	{
 		PlayClick();
-		Application.Quit();
+	#if UNITY_EDITOR
+		UnityEditor.EditorApplication.isPlaying = false; // arrête le mode Play
+	#else
+		Application.Quit(); // quitte l’application en build
+	#endif
 	}
-	
-	private void PlayClick()
-	{
-		if (audioSource && clickSound)
-			audioSource.PlayOneShot(clickSound);
-	}
+
+
+    private void PlayClick()
+    {
+        if (audioSource != null && clickSound != null)
+            audioSource.PlayOneShot(clickSound);
+    }
 }

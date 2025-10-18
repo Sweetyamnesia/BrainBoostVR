@@ -130,11 +130,10 @@ public class ExerciseManager : MonoBehaviour
         if(finalGamePanel != null && scoreManager != null)
         {
             int score = scoreManager.score;
-            int objetsTrouves = scoreManager.score;
-            int objetsManquants = scoreManager.maxScore - scoreManager.score;
+            int errors = scoreManager.errors;
             float temps = scoreManager.sessionTime;
 
-            finalGamePanel.DisplayEnd(score, objetsTrouves, objetsManquants, temps);
+            finalGamePanel.DisplayEnd(score, errors, temps);
         }
     }
 }

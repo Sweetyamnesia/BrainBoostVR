@@ -6,8 +6,11 @@ public class ScoreManager : MonoBehaviour
 {
     // ---------------- Variables principales ----------------
     public int score = 0;
-    public int maxScore = 5;
-    public float sessionTime = 0f;
+	public int maxScore = 5;
+	public int errors = 0;
+
+	public float sessionTime = 0f;
+
     public bool exerciseRunning = false;
 
     public List<SessionRecord> sessionHistory = new List<SessionRecord>();
@@ -25,35 +28,44 @@ public class ScoreManager : MonoBehaviour
         public int objectsPlaced;
     }
 
-    // ---------------- Méthodes ----------------
+	// ---------------- Méthodes ----------------
 
-    // Ajouter des points
-    public void AddPoints(int points = 1)
-    {
-        if (!exerciseRunning) return;
+	// Ajouter des points
+	public void AddPoints(int points = 1)
+	{
+		if (!exerciseRunning) return;
 
-        score += points;
+		score += points;
 
-        if (score > maxScore)
-            score = maxScore;
+		if (score > maxScore)
+			score = maxScore;
 
-        Debug.Log($"[SCORE] Objet correctement placé. Score actuel : {score} / {maxScore}");
-        OnScoreChanged?.Invoke(score);
+		Debug.Log($"[SCORE] Objet correctement placé. Score actuel : {score} / {maxScore}");
+		OnScoreChanged?.Invoke(score);
 
-        if (score >= maxScore)
-        {
-            EndSession();
-        }
-    }
+		if (score >= maxScore)
+		{
+			EndSession();
+		}
+	}
+	
+	public void RegisterError()
+	{
+		if (!exerciseRunning) return;
+		
+		errors++;
+    	Debug.Log($"Erreur enregistrée. Total erreurs : {errors}");
+	}
 
     // Réinitialiser le score pour une nouvelle session
     public void ResetScore()
     {
-        score = 0;
+		score = 0;
+		errors = 0;
         sessionTime = 0f;
         exerciseRunning = false;
 
-        Debug.Log("[SCORE] Score réinitialisé pour nouvelle session.");
+        Debug.Log("[SCORE] Score et erreurs réinitialisés pour nouvelle session.");
         OnScoreChanged?.Invoke(score);
     }
 
@@ -61,7 +73,8 @@ public class ScoreManager : MonoBehaviour
     public void StartSession()
     {
         exerciseRunning = true;
-        score = 0;
+		score = 0;
+		errors = 0;
         sessionTime = 0f;
 
         Debug.Log("[SCORE] Session commencée.");
