@@ -1,26 +1,34 @@
-using Microsoft.AspNetCore.Mvc;
+using BrainBoostVR_API.Data;
 using BrainBoostVR_API.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BrainBoostVR_API.Controllers
 {
-    [Route("api/users")]
     [ApiController]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        // POST /api/users
-        [HttpPost]
-        public IActionResult CreateUser([FromBody] User user)
+        private readonly AppDbContext _context;
+
+        public UsersController(AppDbContext context)
         {
-            // Ici : insert dans DB
-            return Ok(new { status = "success", firebaseUID = user.FirebaseUID, name = user.Name });
+            _context = context;
         }
 
-        // GET /api/users/{firebaseUID}
-        [HttpGet("{firebaseUID}")]
-        public IActionResult GetUser(string firebaseUID)
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
         {
-            // Ici : récupérer l'utilisateur depuis la DB
-            return Ok(new { firebaseUID = firebaseUID, name = "Nom d'exemple" });
+            var user = new User
+            {
+                FirebaseUID = dto.FirebaseUID,
+                Name = dto.Name,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(user);
         }
     }
 }
