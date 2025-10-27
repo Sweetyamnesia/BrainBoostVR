@@ -2,3 +2,4 @@ Assets/Firebase/Plugins/x86_64/*.bundle
 Assets/Firebase/Plugins/x86_64/*.so
 UserSettings/Layouts/
 BrainBoostVR_API/bin/
+BrainBoostVR_API/Config/brainboostvr-firebase-adminsdk-fbsvc-841d9189b7.json
