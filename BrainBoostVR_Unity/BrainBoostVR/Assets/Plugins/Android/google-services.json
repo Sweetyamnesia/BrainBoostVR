@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1039909737041",
+    "project_id": "brainboostvr",
+    "storage_bucket": "brainboostvr.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039909737041:android:787050cc28896e139bde70",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.BrainBoostVR"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAi6FGj1W0zPHEgbLpcKbJQvXK7c53FtSQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
