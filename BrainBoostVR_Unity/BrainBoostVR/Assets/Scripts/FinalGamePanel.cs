@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.SceneManagement;
 
 public class FinalGamePanel : MonoBehaviour
 {
@@ -43,36 +42,20 @@ public class FinalGamePanel : MonoBehaviour
     public void Restart()
     {
         PlayClick();
+
         // Réinitialiser le ScoreManager
-		ScoreManager scoreManager = Object.FindFirstObjectByType<ScoreManager>();
-		if(scoreManager != null)
-			scoreManager.ResetScore();
+        ScoreManager scoreManager = Object.FindFirstObjectByType<ScoreManager>();
+        if (scoreManager != null)
+            scoreManager.ResetScore();
 
-		// Réinitialiser ExerciseManager
-		ExerciseManager exerciseManager = FindFirstObjectByType<ExerciseManager>();
-		if(exerciseManager != null)
-			exerciseManager.StartExercise();
+        // Réinitialiser ExerciseManager
+        ExerciseManager exerciseManager = FindFirstObjectByType<ExerciseManager>();
+        if (exerciseManager != null)
+            exerciseManager.StartExercise();
 
-		// Réinitialiser le panel final
-		gameObject.SetActive(false);
+        // Fermer le panneau final
+        gameObject.SetActive(false);
     }
-
-    public void Menu()
-    {
-        PlayClick();
-        SceneManager.LoadScene("MenuPrincipal");
-    }
-
-    public void Quit()
-	{
-		PlayClick();
-	#if UNITY_EDITOR
-		UnityEditor.EditorApplication.isPlaying = false; // arrête le mode Play
-	#else
-		Application.Quit(); // quitte l’application en build
-	#endif
-	}
-
 
     private void PlayClick()
     {
