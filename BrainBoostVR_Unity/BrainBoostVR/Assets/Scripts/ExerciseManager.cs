@@ -28,6 +28,9 @@ public class ExerciseManager : MonoBehaviour
     [Header("Score")]
     public ScoreManager scoreManager;
 
+    [Header("Subtitles")]
+    public SubtitleManager subtitleManager;
+
     private bool isExerciseRunning = false;
     private float timeRemaining = 0f;
     public float maxDuration = 300f;
@@ -52,14 +55,20 @@ public class ExerciseManager : MonoBehaviour
             StartTimer();
         }
 
-        if(scoreManager != null)
+        if (scoreManager != null)
             scoreManager.StartSession();
     }
 
     private IEnumerator PlayInstructionsAndStartTimer()
     {
         audioSource.clip = instructionsAudio;
+
+        // Lancer les sous-titres avant de jouer l'audio
+        if (subtitleManager != null)
+            subtitleManager.PlaySubtitles(audioSource);
+
         audioSource.Play();
+
         yield return new WaitForSeconds(audioSource.clip.length);
 
         ActivateExerciseObjects();
@@ -83,7 +92,6 @@ public class ExerciseManager : MonoBehaviour
     {
         if (!isExerciseRunning) return;
 
-        // Décompte du chrono
         timeRemaining -= Time.deltaTime;
         if (timeRemaining <= 0f)
         {
@@ -91,7 +99,7 @@ public class ExerciseManager : MonoBehaviour
             isExerciseRunning = false;
             EndExercise();
         }
-        else if(scoreManager != null)
+        else if (scoreManager != null)
         {
             scoreManager.UpdateSessionTime(maxDuration - timeRemaining);
         }
@@ -114,20 +122,19 @@ public class ExerciseManager : MonoBehaviour
         foreach (var obj in exerciseObjects)
         {
             if (!obj.isPlacedCorrectly)
-                return; // un objet n'est pas placé, on sort
+                return;
         }
 
-        // Tous les objets sont bien placés
         isExerciseRunning = false;
         EndExercise();
     }
 
     private void EndExercise()
     {
-        if(scoreManager != null)
+        if (scoreManager != null)
             scoreManager.EndSession();
 
-        if(finalGamePanel != null && scoreManager != null)
+        if (finalGamePanel != null && scoreManager != null)
         {
             int score = scoreManager.score;
             int errors = scoreManager.errors;

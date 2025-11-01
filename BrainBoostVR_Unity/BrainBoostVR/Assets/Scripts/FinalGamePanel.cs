@@ -10,34 +10,34 @@ public class FinalGamePanel : MonoBehaviour
 
     [Header("Audio")]
     public AudioSource audioSource;
-	public AudioClip clickSound;
+    public AudioClip clickSound;
 
-	public GameObject sessionHistoryPanel;
+    public GameObject sessionHistoryPanel;
 
-	public void DisplayEnd(int score, int errors, float temps)
-	{
-		if (textScore != null)
-			textScore.text = "Score final: " + score;
+    public void DisplayEnd(int score, int errors, float temps)
+    {
+        if (textScore != null)
+            textScore.text = "Score final: " + score;
 
-		if (textError != null)
-			textError.text = "Erreurs: " + errors;
+        if (textError != null)
+            textError.text = "Erreurs: " + errors;
 
-		if (textTemps != null)
-		{
-			int minutes = Mathf.FloorToInt(temps / 60);
-			int secondes = Mathf.FloorToInt(temps % 60);
-			textTemps.text = $"Temps passé: {minutes:00}:{secondes:00}";
-		}
+        if (textTemps != null)
+        {
+            int minutes = Mathf.FloorToInt(temps / 60);
+            int secondes = Mathf.FloorToInt(temps % 60);
+            textTemps.text = $"Temps passé: {minutes:00}:{secondes:00}";
+        }
 
-		gameObject.SetActive(true);
-	}
-	
-	public void ShowSessionHistory()
-	{
-		PlayClick();
-		if (sessionHistoryPanel != null)
-			sessionHistoryPanel.SetActive(true);
-	}
+        gameObject.SetActive(true);
+    }
+    
+    public void ShowSessionHistory()
+    {
+        PlayClick();
+        if (sessionHistoryPanel != null)
+            sessionHistoryPanel.SetActive(true);
+    }
 
     public void Restart()
     {

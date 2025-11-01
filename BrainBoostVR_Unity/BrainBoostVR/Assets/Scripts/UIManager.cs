@@ -20,12 +20,22 @@ public class UIManager : MonoBehaviour
 
     public void GoToMainMenu()
     {
-        SceneManager.LoadScene("MenuPrincipal");
+        SceneManager.LoadScene("Menu Principal");
     }
 
-    public void QuitGame()
-    {
-        Debug.Log("Quitter le jeu...");
-        Application.Quit();
-    }
+	public void QuitGame()
+	{
+		Debug.Log("Quitter le jeu...");
+		Application.Quit();
+	}
+	
+	public void CloseSessionHistory()
+	{
+		if (sessionHistoryPanel != null)
+			sessionHistoryPanel.SetActive(false);
+
+		if (finalPanel != null)
+			finalPanel.gameObject.SetActive(true);
+	}
+
 }

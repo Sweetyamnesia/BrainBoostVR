@@ -10,10 +10,11 @@ public class SessionHistoryPanel : MonoBehaviour
     public GameObject sessionEntryPrefab;       // Prefab d'une ligne (Score / Temps / Objets)
     public Button closeButton;                  // Bouton "Fermer"
 
-    [Header("Références de données")]
-    public ScoreManager scoreManager;           // Assigné dans l'inspecteur
+	[Header("Références de données")]
+	public ScoreManager scoreManager;           // Assigné dans l'inspecteur
 
-    private void Start()
+    public GameObject finalGamePanel; 
+	private void Start()
     {
         if (closeButton != null)
             closeButton.onClick.AddListener(ClosePanel);
@@ -49,8 +50,11 @@ public class SessionHistoryPanel : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    private void ClosePanel()
+    public void ClosePanel()
     {
-        gameObject.SetActive(false);
+		gameObject.SetActive(false);
+
+		if (finalGamePanel != null)
+        	finalGamePanel.SetActive(true);
     }
 }
