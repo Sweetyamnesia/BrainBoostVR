@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Menu Principal.unity
+    guid: 2d6e943b31ad243fdb66f293bc5c0e8f
+  - enabled: 1
+    path: Assets/Scenes/TutorialScene.unity
+    guid: b64a68de9d3724ccca118f4f64b8b930
+  - enabled: 1
     path: Assets/Scenes/BrainBoostVR.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
