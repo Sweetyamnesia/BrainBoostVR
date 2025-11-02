@@ -29,8 +29,6 @@ public class SubtitleManager : MonoBehaviour
             panelGroup.alpha = 0f;
         else if (subtitleText != null)
             subtitleText.alpha = 0f;
-
-        gameObject.SetActive(false);
     }
 
     public void PlaySubtitles(AudioSource source)
