@@ -129,18 +129,38 @@ public class ExerciseManager : MonoBehaviour
         EndExercise();
     }
 
-    private void EndExercise()
-    {
-        if (scoreManager != null)
-            scoreManager.EndSession();
+	private void EndExercise()
+	{
+		if (scoreManager != null)
+			scoreManager.EndSession();
 
-        if (finalGamePanel != null && scoreManager != null)
-        {
-            int score = scoreManager.score;
-            int errors = scoreManager.errors;
-            float temps = scoreManager.sessionTime;
+		if (finalGamePanel != null && scoreManager != null)
+		{
+			int score = scoreManager.score;
+			int errors = scoreManager.errors;
+			float temps = scoreManager.sessionTime;
 
-            finalGamePanel.DisplayEnd(score, errors, temps);
-        }
-    }
+			finalGamePanel.DisplayEnd(score, errors, temps);
+		}
+	}
+	
+	public void ResetExercise()
+	{
+		foreach (var obj in exerciseObjects)
+		{
+			if (obj.objectRef != null)
+			{
+				obj.objectRef.transform.position = obj.targetPosition.position; // ou position d'origine sauvegardée
+				obj.objectRef.SetActive(false);
+				obj.isPlacedCorrectly = false;
+			}
+		}
+
+		if (scoreManager != null)
+			scoreManager.ResetScore();
+
+		if (finalGamePanel != null)
+			finalGamePanel.gameObject.SetActive(false);
+	}
+
 }
