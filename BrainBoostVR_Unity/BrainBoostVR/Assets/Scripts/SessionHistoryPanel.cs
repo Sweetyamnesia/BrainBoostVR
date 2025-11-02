@@ -5,56 +5,43 @@ using System.Text;
 
 public class SessionHistoryPanel : MonoBehaviour
 {
-    [Header("Références UI")]
-    public Transform contentParent;             // Conteneur (Content du ScrollView)
-    public GameObject sessionEntryPrefab;       // Prefab d'une ligne (Score / Temps / Objets)
-    public Button closeButton;                  // Bouton "Fermer"
+    [Header("UI")]
+    public TextMeshProUGUI historyText; // Un seul texte qui affichera toutes les sessions
+    public Button closeButton;
 
-	[Header("Références de données")]
-	public ScoreManager scoreManager;           // Assigné dans l'inspecteur
+    [Header("Data")]
+    public ScoreManager scoreManager;
 
-    public GameObject finalGamePanel; 
-	private void Start()
+    private void Start()
     {
         if (closeButton != null)
-            closeButton.onClick.AddListener(ClosePanel);
+            closeButton.onClick.AddListener(() => gameObject.SetActive(false));
 
         gameObject.SetActive(false);
     }
 
-    public void OpenPanel()
-    {
-        if (scoreManager == null)
-        {
-            Debug.LogWarning("[SESSION HISTORY] Aucun ScoreManager assigné !");
-            return;
-        }
+	public void OpenPanel()
+	{
+		if (scoreManager == null)
+		{
+			Debug.LogWarning("[SESSION HISTORY] ScoreManager not assigned!");
+			return;
+		}
 
-        // Nettoie le contenu précédent
-        foreach (Transform child in contentParent)
-            Destroy(child.gameObject);
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < scoreManager.sessionHistory.Count; i++)
+		{
+			var s = scoreManager.sessionHistory[i];
+			sb.AppendLine($"Session {i + 1}: Score {s.score}, Errors {s.objectsPlaced}, Time {s.timeSpent:F1}s");
+		}
 
-        // Affiche les anciennes sessions
-        foreach (var session in scoreManager.sessionHistory)
-        {
-            GameObject entry = Instantiate(sessionEntryPrefab, contentParent);
-            TextMeshProUGUI text = entry.GetComponentInChildren<TextMeshProUGUI>();
+		historyText.text = sb.ToString();
+		gameObject.SetActive(true);
+	}
+	
+	public void ClosePanel()
+	{
+    	gameObject.SetActive(false);
+	}
 
-            if (text != null)
-            {
-                string timeFormatted = $"{Mathf.FloorToInt(session.timeSpent / 60):00}:{Mathf.FloorToInt(session.timeSpent % 60):00}";
-                text.text = $"Score: {session.score}/{scoreManager.maxScore} | Objets: {session.objectsPlaced} | Temps: {timeFormatted}";
-            }
-        }
-
-        gameObject.SetActive(true);
-    }
-
-    public void ClosePanel()
-    {
-		gameObject.SetActive(false);
-
-		if (finalGamePanel != null)
-        	finalGamePanel.SetActive(true);
-    }
 }
