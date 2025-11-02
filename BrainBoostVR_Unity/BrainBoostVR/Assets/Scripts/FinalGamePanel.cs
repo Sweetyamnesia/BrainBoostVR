@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class FinalGamePanel : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class FinalGamePanel : MonoBehaviour
 
     public GameObject sessionHistoryPanel;
 
+    // ======================
+    //   DISPLAY FINAL PANEL
+    // ======================
     public void DisplayEnd(int score, int errors, float temps)
     {
         if (textScore != null)
@@ -31,7 +35,10 @@ public class FinalGamePanel : MonoBehaviour
 
         gameObject.SetActive(true);
     }
-    
+
+    // ======================
+    //   SESSION HISTORY
+    // ======================
     public void ShowSessionHistory()
     {
         PlayClick();
@@ -39,24 +46,24 @@ public class FinalGamePanel : MonoBehaviour
             sessionHistoryPanel.SetActive(true);
     }
 
+    // ======================
+    //   RESTART GAME
+    // ======================
     public void Restart()
     {
         PlayClick();
 
-        // Réinitialiser le ScoreManager
-        ScoreManager scoreManager = Object.FindFirstObjectByType<ScoreManager>();
-        if (scoreManager != null)
-            scoreManager.ResetScore();
-
-        // Réinitialiser ExerciseManager
-        ExerciseManager exerciseManager = FindFirstObjectByType<ExerciseManager>();
-        if (exerciseManager != null)
-            exerciseManager.StartExercise();
-
-        // Fermer le panneau final
+        // Fermer le panneau final (facultatif mais plus propre)
         gameObject.SetActive(false);
+
+        // Recharge la scène active pour tout réinitialiser
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.name);
     }
 
+    // ======================
+    //   AUDIO CLICK
+    // ======================
     private void PlayClick()
     {
         if (audioSource != null && clickSound != null)
