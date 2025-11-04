@@ -6,5 +6,7 @@ namespace BrainBoostVR_API.Models
         public int Score { get; set; }
         public int Errors { get; set; }
         public float TimeSpent { get; set; }
+		public string SessionId { get; set; } = string.Empty;
+    	public string Timestamp { get; set; } = string.Empty;
     }
 }
