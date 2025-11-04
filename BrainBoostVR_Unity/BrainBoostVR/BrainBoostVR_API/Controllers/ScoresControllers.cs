@@ -13,47 +13,79 @@ namespace BrainBoostVR_API.Controllers
         private readonly BrainBoostDbContext _context;
         private readonly FirebaseService _firebaseService;
 
-        public ScoresController(BrainBoostDbContext context, FirebaseService firebaseService)
-        {
-            _context = context;
-            _firebaseService = firebaseService;
-        }
+		public ScoresController(BrainBoostDbContext context, FirebaseService firebaseService)
+		{
+			_context = context;
+			_firebaseService = firebaseService;
+		}
 
-        private async Task<bool> IsAuthorizedAsync()
-        {
-            if (!Request.Headers.ContainsKey("Authorization")) return false;
+		// Vérifie le token Firebase et retourne le FirebaseUID
+		private async Task<string?> VerifyAndGetUidAsync()
+		{
+			if (!Request.Headers.ContainsKey("Authorization")) return null;
 
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            try
-            {
-                await _firebaseService.VerifyTokenAsync(token);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+			try
+			{
+				return await _firebaseService.VerifyTokenAsync(token);
+			}
+			catch
+			{
+				return null;
+			}
+		}
 
-        [HttpPost]
-        public async Task<IActionResult> SubmitScore([FromBody] Score score)
-        {
-            if (!await IsAuthorizedAsync())
-                return Unauthorized("Invalid Firebase token.");
+		// Enregistrer un score envoyé depuis Unity
+		[HttpPost]
+		public async Task<IActionResult> SubmitScore([FromBody] UnityScoreDto dto)
+		{
+			var firebaseUid = await VerifyAndGetUidAsync();
+			if (firebaseUid == null)
+				return Unauthorized("Invalid or missing Firebase token.");
 
-            _context.Scores.Add(score);
-            await _context.SaveChangesAsync();
-            return Ok(new { status = "success", scoreId = score.ScoreID });
-        }
+			// Vérifier que l'utilisateur existe
+			var user = await _context.Users.FirstOrDefaultAsync(u => u.FirebaseUID == dto.FirebaseUID);
+			if (user == null)
+			{
+				// Créer l'utilisateur s'il n'existe pas
+				user = new User
+				{
+					FirebaseUID = dto.FirebaseUID,
+					Name = "Unknown"
+				};
+				_context.Users.Add(user);
+				await _context.SaveChangesAsync();
+			}
 
-        [HttpGet("{userID}")]
-        public async Task<IActionResult> GetScores(int userID)
-        {
-            if (!await IsAuthorizedAsync())
-                return Unauthorized("Invalid Firebase token.");
+			_context.Scores.Add(score);
+			await _context.SaveChangesAsync();
+			return Ok(new
+			{
+				status = "success",
+				user = user.FirebaseUID,
+				scoreId = score.ScoreID,
+				savedAt = score.Timestamp
+			});
+		}
 
-            var scores = await _context.Scores.Where(s => s.UserID == userID).ToListAsync();
-            return Ok(scores);
+        // Récupérer les scores d'un utilisateur
+		[HttpGet("{userID}")]
+        public async Task<IActionResult> GetScores(string firebaseUID)
+		{
+			var firebaseUid = await VerifyAndGetUidAsync();
+			if (firebaseUid == null)
+				return Unauthorized("Invalid or missing Firebase token.");
+
+			var user = await _context.Users.FirstOrDefaultAsync(u => u.FirebaseUID == firebaseUID);
+			if (user == null)
+				return NotFound("User not found");
+
+			var scores = await _context.Scores
+			.Where(s => s.UserID == userID)
+			.OrderByDescending(s.Timestamp)
+			.ToListAsync();
+            
+			return Ok(scores);
         }
     }
 }
