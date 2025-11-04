@@ -7,6 +7,7 @@ public static class ApiClient
 {
     private static readonly string baseUrl = "https://localhost:5286/api"; // ton endpoint
 
+    // DTO pour envoyer un utilisateur
     [System.Serializable]
     private class UnityUserDto
     {
@@ -14,6 +15,7 @@ public static class ApiClient
         public string Name;
     }
 
+    // DTO pour la réponse utilisateur
     [System.Serializable]
     private class UserResponse
     {
@@ -22,7 +24,21 @@ public static class ApiClient
         public string CreatedAt;
     }
 
-    // Méthode pour créer ou récupérer un utilisateur via le pseudo
+    // DTO pour envoyer un score
+    [System.Serializable]
+    private class UnityScoreDto
+    {
+        public string FirebaseUID;
+        public int score;
+        public int errors;
+        public float timeSpent;
+        public string sessionId;
+        public string timestamp;
+    }
+
+    // ------------------- Méthodes -------------------
+
+    // Créer ou récupérer un utilisateur via le pseudo
     public static async Task<string> CreateOrGetUserAsync(string pseudo, string idToken)
     {
         if (string.IsNullOrEmpty(pseudo) || string.IsNullOrEmpty(idToken))
@@ -33,7 +49,7 @@ public static class ApiClient
 
         var payload = new UnityUserDto
         {
-            FirebaseUID = pseudo, // on utilise le pseudo comme identifiant temporaire côté API
+            FirebaseUID = pseudo, // On utilise le pseudo comme identifiant temporaire côté API
             Name = pseudo
         };
 
@@ -63,6 +79,46 @@ public static class ApiClient
                 Debug.Log($"[API] Utilisateur récupéré ou créé : {user.FirebaseUID}");
                 return user.FirebaseUID;
             }
+        }
+    }
+
+    // Envoyer un score à l'API
+    public static async Task SendScoreAsync(string firebaseUID, string idToken, ScoreManager.SessionRecord record)
+    {
+        if (string.IsNullOrEmpty(firebaseUID) || string.IsNullOrEmpty(idToken))
+        {
+            Debug.LogWarning("[API] FirebaseUID ou Token vide, envoi annulé.");
+            return;
+        }
+
+        var payload = new UnityScoreDto
+        {
+            FirebaseUID = firebaseUID,
+            score = record.score,
+            errors = record.errors,
+            timeSpent = record.timeSpent,
+            sessionId = record.sessionId,
+            timestamp = record.timestamp
+        };
+
+        string json = JsonUtility.ToJson(payload);
+        string url = $"{baseUrl}/scores";
+
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", $"Bearer {idToken}");
+
+            Debug.Log("[API] Envoi des données : " + json);
+            await request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+                Debug.LogError($"[API] Erreur : {request.error} - {request.downloadHandler.text}");
+            else
+                Debug.Log("[API] Score envoyé avec succès !");
         }
     }
 }
