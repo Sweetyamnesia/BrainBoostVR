@@ -15,18 +15,22 @@ namespace BrainBoostVR_API.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+        [HttpPost("create-or-get")]
+        public async Task<IActionResult> CreateOrGetUser([FromBody] CreateUserDto dto)
         {
-            var user = new User
-            {
-                FirebaseUID = dto.FirebaseUID,
-                Name = dto.Name,
-                CreatedAt = DateTime.UtcNow
-            };
+			var user = _context.Users.FirstOrDefault(u->u.FirebaseUID == dto.FirebaseUID);
+			if (user == null)
+			{
+				user = new User
+				{
+					FirebaseUID = dto.FirebaseUID,
+					Name = dto.Name,
+					CreatedAt = DateTime.UtcNow
+				};
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+				_context.Users.Add(user);
+				await _context.SaveChangesAsync();
+			}
 
             return Ok(user);
         }
