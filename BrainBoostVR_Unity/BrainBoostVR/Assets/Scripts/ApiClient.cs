@@ -29,11 +29,11 @@ public static class ApiClient
     private class UnityScoreDto
     {
         public string FirebaseUID;
-        public int score;
-        public int errors;
-        public float timeSpent;
-        public string sessionId;
-        public string timestamp;
+        public int Score;
+        public int Errors;
+        public float TimeSpent;
+        public string SessionId;
+        public string Timestamp;
     }
 
     // ------------------- Méthodes -------------------
@@ -94,11 +94,11 @@ public static class ApiClient
         var payload = new UnityScoreDto
         {
             FirebaseUID = firebaseUID,
-            score = record.score,
-            errors = record.errors,
-            timeSpent = record.timeSpent,
-            sessionId = record.sessionId,
-            timestamp = record.timestamp
+            Score = record.score,
+            Errors = record.errors,
+            TimeSpent = record.timeSpent,
+            SessionId = record.sessionId,
+            Timestamp = record.timestamp
         };
 
         string json = JsonUtility.ToJson(payload);
