@@ -6,10 +6,10 @@ public class ScoreManager : MonoBehaviour
 {
     // ---------------- Variables principales ----------------
     public int score = 0;
-	public int maxScore = 5;
-	public int errors = 0;
+    public int maxScore = 5;
+    public int errors = 0;
 
-	public float sessionTime = 0f;
+    public float sessionTime = 0f;
 
     public bool exerciseRunning = false;
 
@@ -25,43 +25,45 @@ public class ScoreManager : MonoBehaviour
     {
         public int score;
         public float timeSpent;
-        public int objectsPlaced;
+        public int errors;        // corrigé : on garde le nombre d'erreurs
+        public string sessionId;  // optionnel : utile si tu veux un id unique
+        public string timestamp;  // optionnel : ISO timestamp
     }
 
-	// ---------------- Méthodes ----------------
+    // ---------------- Méthodes ----------------
 
-	// Ajouter des points
-	public void AddPoints(int points = 1)
-	{
-		if (!exerciseRunning) return;
+    // Ajouter des points
+    public void AddPoints(int points = 1)
+    {
+        if (!exerciseRunning) return;
 
-		score += points;
+        score += points;
 
-		if (score > maxScore)
-			score = maxScore;
+        if (score > maxScore)
+            score = maxScore;
 
-		Debug.Log($"[SCORE] Objet correctement placé. Score actuel : {score} / {maxScore}");
-		OnScoreChanged?.Invoke(score);
+        Debug.Log($"[SCORE] Objet correctement placé. Score actuel : {score} / {maxScore}");
+        OnScoreChanged?.Invoke(score);
 
-		if (score >= maxScore)
-		{
-			EndSession();
-		}
-	}
-	
-	public void RegisterError()
-	{
-		if (!exerciseRunning) return;
-		
-		errors++;
-    	Debug.Log($"Erreur enregistrée. Total erreurs : {errors}");
-	}
+        if (score >= maxScore)
+        {
+            EndSession();
+        }
+    }
+
+    public void RegisterError()
+    {
+        if (!exerciseRunning) return;
+
+        errors++;
+        Debug.Log($"Erreur enregistrée. Total erreurs : {errors}");
+    }
 
     // Réinitialiser le score pour une nouvelle session
     public void ResetScore()
     {
-		score = 0;
-		errors = 0;
+        score = 0;
+        errors = 0;
         sessionTime = 0f;
         exerciseRunning = false;
 
@@ -73,8 +75,8 @@ public class ScoreManager : MonoBehaviour
     public void StartSession()
     {
         exerciseRunning = true;
-		score = 0;
-		errors = 0;
+        score = 0;
+        errors = 0;
         sessionTime = 0f;
 
         Debug.Log("[SCORE] Session commencée.");
@@ -82,7 +84,7 @@ public class ScoreManager : MonoBehaviour
     }
 
     // Terminer une session
-    public void EndSession()
+    public async void EndSession()
     {
         if (!exerciseRunning) return;
 
@@ -92,12 +94,25 @@ public class ScoreManager : MonoBehaviour
         {
             score = score,
             timeSpent = sessionTime,
-            objectsPlaced = score
+            errors = errors,
+            sessionId = System.Guid.NewGuid().ToString(),
+            timestamp = System.DateTime.UtcNow.ToString("o") // ISO 8601 UTC
         };
 
         sessionHistory.Add(record);
 
-        Debug.Log($"[SCORE] Session terminée. Score : {score} / {maxScore}, Temps : {sessionTime:F2} s, Objets placés : {score}");
+        Debug.Log($"[SCORE] Session terminée. Score : {score} / {maxScore}, Temps : {sessionTime:F2} s, Erreurs : {errors}");
+        
+        // --- Envoi vers l'API (utilise FirebaseAnonymousAuth pour userId + token) ---
+        try
+        {
+            await ApiClient.SendScoreAsync(FirebaseAnonymousAuth.UserId, FirebaseAnonymousAuth.IdToken, record);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[SCORE] Erreur lors de l'envoi au backend : {ex.Message}");
+        }
+
         OnExerciseFinished?.Invoke(record);
     }
 
@@ -107,11 +122,5 @@ public class ScoreManager : MonoBehaviour
         if (!exerciseRunning) return;
 
         sessionTime = elapsedTime;
-    }
-
-    // Préparer envoi vers API / Firebase (à implémenter plus tard)
-    public void SyncWithAPI()
-    {
-        // Logique à compléter : préparer JSON et envoyer via POST
     }
 }
