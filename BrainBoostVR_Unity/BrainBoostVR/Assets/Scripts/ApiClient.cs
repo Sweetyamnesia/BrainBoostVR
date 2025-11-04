@@ -7,7 +7,7 @@ public static class ApiClient
 {
     private static readonly string baseUrl = "https://localhost:5286/api"; // ton endpoint
 
-    // DTO pour envoyer un utilisateur
+    // ----------------- DTO -----------------
     [System.Serializable]
     private class UnityUserDto
     {
@@ -15,7 +15,6 @@ public static class ApiClient
         public string Name;
     }
 
-    // DTO pour la réponse utilisateur
     [System.Serializable]
     private class UserResponse
     {
@@ -24,7 +23,6 @@ public static class ApiClient
         public string CreatedAt;
     }
 
-    // DTO pour envoyer un score
     [System.Serializable]
     private class UnityScoreDto
     {
@@ -36,7 +34,25 @@ public static class ApiClient
         public string Timestamp;
     }
 
-    // ------------------- Méthodes -------------------
+    [System.Serializable]
+    public class UnitySessionDto
+    {
+        public string FirebaseUID;
+        public string SessionId;
+        public float DurationMinutes;
+        public string StartTime; // string pour JsonUtility
+        public string EndTime;
+        public int Score;
+        public int Errors;
+    }
+
+    [System.Serializable]
+    private class UnitySessionDtoWrapper
+    {
+        public UnitySessionDto[] Sessions;
+    }
+
+    // ----------------- Méthodes -----------------
 
     // Créer ou récupérer un utilisateur via le pseudo
     public static async Task<string> CreateOrGetUserAsync(string pseudo, string idToken)
@@ -49,7 +65,7 @@ public static class ApiClient
 
         var payload = new UnityUserDto
         {
-            FirebaseUID = pseudo, // On utilise le pseudo comme identifiant temporaire côté API
+            FirebaseUID = pseudo,
             Name = pseudo
         };
 
@@ -119,6 +135,36 @@ public static class ApiClient
                 Debug.LogError($"[API] Erreur : {request.error} - {request.downloadHandler.text}");
             else
                 Debug.Log("[API] Score envoyé avec succès !");
+        }
+    }
+
+    // Récupérer les sessions d’un utilisateur
+    public static async Task<UnitySessionDto[]> GetSessionsAsync(string firebaseUID, string idToken)
+    {
+        if (string.IsNullOrEmpty(firebaseUID) || string.IsNullOrEmpty(idToken))
+        {
+            Debug.LogWarning("[API] FirebaseUID ou Token vide, requête annulée.");
+            return null;
+        }
+
+        string url = $"{baseUrl}/sessions?userId={firebaseUID}";
+
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Authorization", $"Bearer {idToken}");
+            await request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"[API] Erreur récupération sessions : {request.error}");
+                return null;
+            }
+            else
+            {
+                var responseJson = request.downloadHandler.text;
+                var wrapper = JsonUtility.FromJson<UnitySessionDtoWrapper>(responseJson);
+                return wrapper.Sessions;
+            }
         }
     }
 }
