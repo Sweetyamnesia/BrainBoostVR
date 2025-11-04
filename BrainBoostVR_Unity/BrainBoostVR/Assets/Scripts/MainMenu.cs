@@ -1,23 +1,39 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
-    [Header("Audio")]
+    [Header("UI")]
+    public TMP_InputField pseudoInput;
+    public TextMeshProUGUI pseudoErrorText;
+	
+	[Header("Audio")]
     public GameObject menuAmbiance; // Assigner le GameObject avec AudioFade
 
     private void Start()
     {
         // Quand le menu apparaît, fade in de l'ambiance
-        if(menuAmbiance != null)
+        if (menuAmbiance != null)
         {
-            menuAmbiance.GetComponent<AudioFade>().FadeIn();
+			menuAmbiance.GetComponent<AudioFade>().FadeIn();
+			pseudoErrorText.text = "";
         }
     }
 
     public void PlayGame()
-    {
-        if(menuAmbiance != null)
+	{
+        string pseudo = pseudoInput.text.Trim();
+
+        if (string.IsNullOrEmpty(pseudo))
+        {
+            pseudoErrorText.text = "Veuillez entrer un pseudo.";
+            return; // bloque le lancement du jeu
+        }
+
+        pseudoErrorText.text = "";
+		
+		if (menuAmbiance != null)
         {
             menuAmbiance.GetComponent<AudioFade>().FadeOut();
         }
@@ -26,7 +42,7 @@ public class MainMenu : MonoBehaviour
 
     public void OpenTutorial()
     {
-        if(menuAmbiance != null)
+        if (menuAmbiance != null)
         {
             menuAmbiance.GetComponent<AudioFade>().FadeOut();
         }
@@ -35,7 +51,7 @@ public class MainMenu : MonoBehaviour
 
     public void QuitGame()
     {
-        if(menuAmbiance != null)
+        if (menuAmbiance != null)
         {
             menuAmbiance.GetComponent<AudioFade>().FadeOut();
         }
