@@ -32,7 +32,7 @@ public class SessionHistoryPanel : MonoBehaviour
 		for (int i = 0; i < scoreManager.sessionHistory.Count; i++)
 		{
 			var s = scoreManager.sessionHistory[i];
-			sb.AppendLine($"Session {i + 1}: Score {s.score}, Errors {s.objectsPlaced}, Time {s.timeSpent:F1}s");
+			sb.AppendLine($"Session {i + 1}: Score {s.score}, Errors {s.errors}, Time {s.timeSpent:F1}s");
 		}
 
 		historyText.text = sb.ToString();
