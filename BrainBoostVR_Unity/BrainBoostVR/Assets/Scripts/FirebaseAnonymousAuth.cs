@@ -6,10 +6,34 @@ public class FirebaseAnonymousAuth : MonoBehaviour
 {
     private FirebaseAuth auth;
 
-    private async void Start()
+    public static string UserId { get; private set; }
+    public static string IdToken { get; private set; }
+
+
+	private void Awake()
+	{
+		DontDestroyOnLoad(gameObject);
+	}
+
+	private async void Start()
+	{
+		auth = FirebaseAuth.DefaultInstance;
+		await InitializeFirebaseUser();
+	}
+
+    private async Task InitializeFirebaseUser()
     {
-        auth = FirebaseAuth.DefaultInstance;
-        await SignInAnonymously();
+        if (auth.CurrentUser != null)
+        {
+            // Utilisateur déjà connecté (même après avoir quitté le jeu)
+            UserId = auth.CurrentUser.UserId;
+            IdToken = await auth.CurrentUser.TokenAsync(true);
+            Debug.Log($"[Firebase] Utilisateur existant : {UserId}");
+        }
+        else
+        {
+            await SignInAnonymously();
+        }
     }
 
     private async Task SignInAnonymously()
@@ -17,15 +41,15 @@ public class FirebaseAnonymousAuth : MonoBehaviour
         try
         {
             var userCredential = await auth.SignInAnonymouslyAsync();
-            FirebaseUser user = userCredential.User; // ← c’est ça qu’il faut
-            string idToken = await user.TokenAsync(true); // force refresh
-            Debug.Log("Token anonyme (JWT) : " + idToken);
+            var user = userCredential.User;
+            UserId = user.UserId;
+            IdToken = await user.TokenAsync(true);
 
-            // Ici tu peux envoyer idToken à ton API via UnityWebRequest
+            Debug.Log($"[Firebase] Nouvel utilisateur anonyme : {UserId}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError("Erreur connexion anonyme : " + e.Message);
+            Debug.LogError("[Firebase] Erreur de connexion anonyme : " + e.Message);
         }
     }
 }
