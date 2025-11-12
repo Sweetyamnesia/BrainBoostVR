@@ -2055,8 +2055,8 @@ MonoBehaviour:
     text: Bonjour et bievenue sur BrainBoostVR !
     images: []
   - time: 3
-    text: "Dans cet exercice, votre objectif est de retrouver 5 objets, et les placer
-      \xE0 leur emplacement correct."
+    text: "Dans cet exercice, votre objectif est de retrouver 5 objets, et de les
+      placer \xE0 leur emplacement correct."
     images: []
   - time: 10
     text: "Les objets \xE0 trouver sont : une banane, un ballon, un ordinateur, une
@@ -2209,7 +2209,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3586,6 +3586,7 @@ MonoBehaviour:
   errors: 0
   sessionTime: 0
   exerciseRunning: 0
+  currentSessionId: 
   sessionHistory: []
 --- !u!4 &729573209
 Transform:
@@ -7012,9 +7013,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 646144603}
-        m_TargetAssemblyTypeName: SessionHistoryPanel, Assembly-CSharp
-        m_MethodName: OpenPanel
+      - m_Target: {fileID: 785826613}
+        m_TargetAssemblyTypeName: FinalGamePanel, Assembly-CSharp
+        m_MethodName: ShowSessionHistory
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8268,6 +8269,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   finalPanel: {fileID: 785826613}
   sessionHistoryPanel: {fileID: 646144601}
+  sessionHistoryPanelScript: {fileID: 0}
 --- !u!4 &1423931804
 Transform:
   m_ObjectHideFlags: 0
@@ -8777,6 +8779,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af8974c846dc7470b98107e8a55cb957, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  apiBaseUrl: http://192.168.1.108:5286/
 --- !u!4 &1561603951
 Transform:
   m_ObjectHideFlags: 0
@@ -8979,7 +8982,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -9010,9 +9013,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 646144603}
-        m_TargetAssemblyTypeName: SessionHistoryPanel, Assembly-CSharp
-        m_MethodName: ClosePanel
+      - m_Target: {fileID: 1423931803}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: CloseSessionHistory
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12762,7 +12765,7 @@ Transform:
   m_GameObject: {fileID: 2030332003}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 62.117, y: 40.417, z: 3}
+  m_LocalPosition: {x: 62.117, y: 40.429, z: 3}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children:
