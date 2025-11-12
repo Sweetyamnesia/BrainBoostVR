@@ -1,6 +1,7 @@
 using BrainBoostVR_API.Data;
 using BrainBoostVR_API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrainBoostVR_API.Controllers
 {
@@ -8,31 +9,39 @@ namespace BrainBoostVR_API.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly BrainBoostDbContext _context;
 
-        public UsersController(AppDbContext context)
+        public UsersController(BrainBoostDbContext context)
         {
             _context = context;
         }
 
+        // create-or-get endpoint (exemple)
         [HttpPost("create-or-get")]
         public async Task<IActionResult> CreateOrGetUser([FromBody] CreateUserDto dto)
         {
-			var user = _context.Users.FirstOrDefault(u->u.FirebaseUID == dto.FirebaseUID);
-			if (user == null)
-			{
-				user = new User
-				{
-					FirebaseUID = dto.FirebaseUID,
-					Name = dto.Name,
-					CreatedAt = DateTime.UtcNow
-				};
+            if (dto == null || string.IsNullOrWhiteSpace(dto.FirebaseUID))
+                return BadRequest("Invalid payload");
 
-				_context.Users.Add(user);
-				await _context.SaveChangesAsync();
-			}
+            // Correction du lambda : u => u.FirebaseUID == dto.FirebaseUID
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.FirebaseUID == dto.FirebaseUID);
 
-            return Ok(user);
+            if (user == null)
+            {
+                user = new User
+                {
+                    FirebaseUID = dto.FirebaseUID,
+                    Name = dto.Name ?? string.Empty,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { status = "created", firebaseUID = user.FirebaseUID });
+            }
+
+            return Ok(new { status = "exists", firebaseUID = user.FirebaseUID });
         }
     }
 }
