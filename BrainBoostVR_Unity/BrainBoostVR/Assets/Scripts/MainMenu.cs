@@ -1,108 +1,127 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.UI;
 using System.Threading.Tasks;
 
 public class MainMenu : MonoBehaviour
 {
     [Header("UI")]
     public TMP_InputField pseudoInput;
-    public TextMeshProUGUI pseudoErrorText;
-
-    public GameObject confirmPanel;
-    public TextMeshProUGUI confirmText;
+    public TextMeshProUGUI statusText;
+    public Button playButton;
+    public Button tutorialButton;
+    public Button quitButton;
 
     [Header("Audio")]
-    public GameObject menuAmbiance; // GameObject avec AudioFade
+    public GameObject menuAmbiance;
 
-    private void Start()
+    private FirebaseAnonymousAuth firebaseAuth;
+    private bool isProcessing = false;
+
+    [Header("Panel")]
+    public ConfirmPanel confirmPanel;
+
+    private async void Start()
     {
-        // Fade in du menu
-        if (menuAmbiance != null)
-            menuAmbiance.GetComponent<AudioFade>().FadeIn();
+        firebaseAuth = Object.FindFirstObjectByType<FirebaseAnonymousAuth>();
 
-        // Masquer les messages et panneau au départ
-        pseudoErrorText.text = "";
-        confirmPanel.SetActive(false);
+        // Fade in de la musique
+        menuAmbiance?.GetComponent<AudioFade>()?.FadeIn();
+
+        // Activer tous les boutons
+        SetButtonsInteractable(true);
+
+        statusText.text = "";
+
+        // Attendre que Firebase soit prêt
+        await WaitForFirebaseReady();
+    }
+
+    private void SetButtonsInteractable(bool state)
+    {
+        playButton.interactable = state;
+        tutorialButton.interactable = state;
+        quitButton.interactable = state;
+    }
+
+    private async Task WaitForFirebaseReady()
+    {
+        int maxWait = 20; // 20 * 0.5s = 10s max
+        while (!FirebaseAnonymousAuth.IsTokenReady && maxWait > 0)
+        {
+            statusText.text = "<color=orange>Connexion à Firebase...</color>";
+            await Task.Delay(500);
+            maxWait--;
+        }
+
+        if (FirebaseAnonymousAuth.IsTokenReady)
+        {
+            statusText.text = "<color=green>Firebase connecté ✔</color>";
+        }
+        else
+        {
+            statusText.text = "<color=red>Impossible de se connecter à Firebase.</color>";
+        }
     }
 
     public async void PlayGame()
     {
-        string pseudo = pseudoInput.text.Trim();
+        if (isProcessing) return;
+        isProcessing = true;
+        SetButtonsInteractable(false);
 
-        if (string.IsNullOrEmpty(pseudo))
+        try
         {
-            pseudoErrorText.text = "<color=red>Veuillez entrer un pseudo.</color>";
-            return;
+            if (firebaseAuth == null)
+            {
+                statusText.text = "<color=red>Erreur : Auth non initialisée.</color>";
+                return;
+            }
+
+            string pseudo = pseudoInput.text.Trim();
+            if (string.IsNullOrEmpty(pseudo))
+            {
+                statusText.text = "<color=red>Veuillez entrer un pseudo.</color>";
+                return;
+            }
+
+            statusText.text = "<color=orange>Connexion à l'API...</color>";
+
+            // Test de connexion à Firebase et création de session
+            await firebaseAuth.TestApiConnection();
+
+            // Chargement de la scène principale
+            await LoadGameScene();
         }
-
-        pseudoErrorText.text = "";
-
-        // Récupérer le token Firebase
-        string idToken = FirebaseAnonymousAuth.IdToken;
-
-        // Créer ou récupérer l'utilisateur via l'API
-        string firebaseUID = await ApiClient.CreateOrGetUserAsync(pseudo, idToken);
-
-        if (string.IsNullOrEmpty(firebaseUID))
+        catch (System.Exception ex)
         {
-            pseudoErrorText.text = "<color=red>Erreur lors de la connexion, réessayez.</color>";
-            return;
+            statusText.text = $"<color=red>Erreur : {ex.Message}</color>";
+            Debug.LogError("[MainMenu] PlayGame exception: " + ex.Message);
         }
-
-        // Vérifier si l'utilisateur est existant ou nouveau
-        if (firebaseUID == "EXISTS")
+        finally
         {
-            confirmText.text = $"Le pseudo <b>{pseudo}</b> existe déjà.\nVoulez-vous continuer avec ce profil ?";
-            confirmPanel.SetActive(true);
-            return;
+            isProcessing = false;
+            SetButtonsInteractable(true);
         }
-        else if (firebaseUID == "NEW")
-        {
-            pseudoErrorText.text = "<color=green>Profil créé avec succès !</color>";
-        }
-
-        LaunchGame();
     }
 
-    // Bouton "Oui" dans le confirmPanel
-    public void OnConfirmYes()
+    private async Task LoadGameScene()
     {
-        confirmPanel.SetActive(false);
-        LaunchGame();
-    }
-
-    // Bouton "Non" dans le confirmPanel
-    public void OnConfirmNo()
-    {
-        confirmPanel.SetActive(false);
-        pseudoInput.text = "";
-        pseudoErrorText.text = "Choisissez un autre pseudo.";
-    }
-
-    // Méthode pour fade audio et charger la scène principale
-    private void LaunchGame()
-    {
-        if (menuAmbiance != null)
-            menuAmbiance.GetComponent<AudioFade>().FadeOut();
-
+        await Task.Delay(500); // Petit délai pour fade audio
+        menuAmbiance?.GetComponent<AudioFade>()?.FadeOut();
         SceneManager.LoadScene("BrainBoostVR");
     }
 
     public void OpenTutorial()
     {
-        if (menuAmbiance != null)
-            menuAmbiance.GetComponent<AudioFade>().FadeOut();
-
+        menuAmbiance?.GetComponent<AudioFade>()?.FadeOut();
         SceneManager.LoadScene("TutorialScene");
     }
 
     public void QuitGame()
     {
-        if (menuAmbiance != null)
-            menuAmbiance.GetComponent<AudioFade>().FadeOut();
-
-        Debug.Log("Quitter le jeu");
+        menuAmbiance?.GetComponent<AudioFade>()?.FadeOut();
         Application.Quit();
     }
 }
