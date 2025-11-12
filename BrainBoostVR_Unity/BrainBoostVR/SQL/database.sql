@@ -1,39 +1,47 @@
--- Users table
+-- 🔹 Users table
 CREATE TABLE IF NOT EXISTS Users (
-    userID INT PRIMARY KEY AUTO_INCREMENT,
-    firebaseUID VARCHAR(255) UNIQUE NOT NULL,
-    name VARCHAR(100) NOT NULL
+    UserID INT PRIMARY KEY AUTO_INCREMENT,
+    FirebaseUID VARCHAR(255) UNIQUE NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Exercises table
+-- 🔹 Exercises table
 CREATE TABLE IF NOT EXISTS Exercises (
-    exerciseID INT PRIMARY KEY AUTO_INCREMENT,
-    userID INT NOT NULL,
-    score INT,
-    durationMinutes FLOAT,
-    successes INT,
-    failures INT,
-    exerciseDate DATETIME,
-    FOREIGN KEY (userID) REFERENCES Users(userID)
+    ExerciseID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT NOT NULL,
+    Score INT DEFAULT 0,
+    DurationMinutes FLOAT DEFAULT 0,
+    Successes INT DEFAULT 0,
+    Failures INT DEFAULT 0,
+    ExerciseDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
--- Scores table
-CREATE TABLE IF NOT EXISTS Scores (
-    scoreID INT PRIMARY KEY AUTO_INCREMENT,
-    userID INT NOT NULL,
-    exerciseID INT NOT NULL,
-    score INT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userID) REFERENCES Users(userID),
-    FOREIGN KEY (exerciseID) REFERENCES Exercises(exerciseID)
-);
-
--- Sessions table
+-- 🔹 Sessions table
 CREATE TABLE IF NOT EXISTS Sessions (
-    sessionID INT PRIMARY KEY AUTO_INCREMENT,
-    userID INT NOT NULL,
-    startTime DATETIME,
-    endTime DATETIME,
-    durationMinutes FLOAT,
-    FOREIGN KEY (userID) REFERENCES Users(userID)
+    SessionID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT NOT NULL,
+    FirebaseUID VARCHAR(255) NOT NULL,
+    SessionUid VARCHAR(255) NOT NULL,
+    StartTime DATETIME,
+    EndTime DATETIME,
+    DurationMinutes FLOAT DEFAULT 0,
+    Score INT DEFAULT 0,
+    Errors INT DEFAULT 0,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+-- 🔹 Scores table
+CREATE TABLE IF NOT EXISTS Scores (
+    ScoreID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT NOT NULL,
+    SessionUid VARCHAR(255) NOT NULL,
+    ExerciseID INT DEFAULT 0,
+    Score INT DEFAULT 0,
+    Errors INT DEFAULT 0,
+    TimeSpent FLOAT DEFAULT 0,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+    -- Pas de FK sur ExerciseID si tu veux poster des scores génériques
 );
