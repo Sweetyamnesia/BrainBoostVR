@@ -1,170 +1,88 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
+
 public static class ApiClient
 {
-    private static readonly string baseUrl = "https://localhost:5286/api"; // ton endpoint
+    public static string apiBaseUrl = "http://10.5.2.38:5286/api";
 
-    // ----------------- DTO -----------------
-    [System.Serializable]
-    private class UnityUserDto
-    {
-        public string FirebaseUID;
-        public string Name;
-    }
-
-    [System.Serializable]
-    private class UserResponse
-    {
-        public string FirebaseUID;
-        public string Name;
-        public string CreatedAt;
-    }
-
-    [System.Serializable]
-    private class UnityScoreDto
-    {
-        public string FirebaseUID;
-        public int Score;
-        public int Errors;
-        public float TimeSpent;
-        public string SessionId;
-        public string Timestamp;
-    }
-
-    [System.Serializable]
+    [Serializable]
     public class UnitySessionDto
     {
         public string FirebaseUID;
-        public string SessionId;
+        public string SessionUid;
         public float DurationMinutes;
-        public string StartTime; // string pour JsonUtility
+        public string StartTime;
         public string EndTime;
         public int Score;
         public int Errors;
     }
 
-    [System.Serializable]
-    private class UnitySessionDtoWrapper
+    [Serializable]
+    public class UnityScoreDto
     {
-        public UnitySessionDto[] Sessions;
+        public string FirebaseUID;
+        public int Score;
+        public int Errors;
+        public float TimeSpent;
+        public string Timestamp;
+        public string SessionUid;
     }
 
-    // ----------------- Méthodes -----------------
-
-    // Créer ou récupérer un utilisateur via le pseudo
-    public static async Task<string> CreateOrGetUserAsync(string pseudo, string idToken)
+    // 🔹 Création ou mise à jour d’une session
+    public static async Task<string> CreateOrUpdateSessionAsync(UnitySessionDto dto, string idToken)
     {
-        if (string.IsNullOrEmpty(pseudo) || string.IsNullOrEmpty(idToken))
+        using (UnityWebRequest www = new UnityWebRequest($"{apiBaseUrl}/sessions", "POST"))
         {
-            Debug.LogWarning("[API] Pseudo ou token vide, action annulée.");
-            return null;
-        }
+            string jsonData = JsonUtility.ToJson(dto);
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            www.SetRequestHeader("Authorization", $"Bearer {idToken}");
 
-        var payload = new UnityUserDto
-        {
-            FirebaseUID = pseudo,
-            Name = pseudo
-        };
+            Debug.Log($"[API] Envoi session : {jsonData}");
 
-        string json = JsonUtility.ToJson(payload);
-        string url = $"{baseUrl}/users/create-or-get";
+            await www.SendWebRequest();
 
-        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", $"Bearer {idToken}");
-
-            Debug.Log("[API] Envoi du pseudo : " + json);
-            await request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"[API] Erreur création/récupération utilisateur : {request.error} - {request.downloadHandler.text}");
-                return null;
+                Debug.LogError("[API] Erreur envoi session : " + www.error);
+                return string.Empty;
             }
-            else
-            {
-                var responseJson = request.downloadHandler.text;
-                var user = JsonUtility.FromJson<UserResponse>(responseJson);
-                Debug.Log($"[API] Utilisateur récupéré ou créé : {user.FirebaseUID}");
-                return user.FirebaseUID;
-            }
+
+            Debug.Log("[API] Session créée ou mise à jour ✅");
+            return dto.SessionUid;
         }
     }
 
-    // Envoyer un score à l'API
-    public static async Task SendScoreAsync(string firebaseUID, string idToken, ScoreManager.SessionRecord record)
-    {
-        if (string.IsNullOrEmpty(firebaseUID) || string.IsNullOrEmpty(idToken))
-        {
-            Debug.LogWarning("[API] FirebaseUID ou Token vide, envoi annulé.");
-            return;
-        }
+	// 🔹 Envoi du score
+	public static async Task<bool> SendScoreAsync(string firebaseUID, string idToken, UnityScoreDto scoreDto)
+	{
+		using (UnityWebRequest www = new UnityWebRequest($"{apiBaseUrl}/scores", "POST"))
+		{
+			string jsonData = JsonUtility.ToJson(scoreDto);
+			byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
+			www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+			www.downloadHandler = new DownloadHandlerBuffer();
+			www.SetRequestHeader("Content-Type", "application/json");
+			www.SetRequestHeader("Authorization", $"Bearer {idToken}");
 
-        var payload = new UnityScoreDto
-        {
-            FirebaseUID = firebaseUID,
-            Score = record.score,
-            Errors = record.errors,
-            TimeSpent = record.timeSpent,
-            SessionId = record.sessionId,
-            Timestamp = record.timestamp
-        };
+			Debug.Log($"[API] Envoi du score : {jsonData}");
 
-        string json = JsonUtility.ToJson(payload);
-        string url = $"{baseUrl}/scores";
+			await www.SendWebRequest();
 
-        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", $"Bearer {idToken}");
+			if (www.result != UnityWebRequest.Result.Success)
+			{
+				Debug.LogError("[API] Erreur envoi score : " + www.error);
+				return false;
+			}
 
-            Debug.Log("[API] Envoi des données : " + json);
-            await request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
-                Debug.LogError($"[API] Erreur : {request.error} - {request.downloadHandler.text}");
-            else
-                Debug.Log("[API] Score envoyé avec succès !");
-        }
-    }
-
-    // Récupérer les sessions d’un utilisateur
-    public static async Task<UnitySessionDto[]> GetSessionsAsync(string firebaseUID, string idToken)
-    {
-        if (string.IsNullOrEmpty(firebaseUID) || string.IsNullOrEmpty(idToken))
-        {
-            Debug.LogWarning("[API] FirebaseUID ou Token vide, requête annulée.");
-            return null;
-        }
-
-        string url = $"{baseUrl}/sessions?userId={firebaseUID}";
-
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
-        {
-            request.SetRequestHeader("Authorization", $"Bearer {idToken}");
-            await request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError($"[API] Erreur récupération sessions : {request.error}");
-                return null;
-            }
-            else
-            {
-                var responseJson = request.downloadHandler.text;
-                var wrapper = JsonUtility.FromJson<UnitySessionDtoWrapper>(responseJson);
-                return wrapper.Sessions;
-            }
-        }
-    }
+			Debug.Log("[API] Score envoyé avec succès ✅");
+			return true;
+		}
+	}
 }
