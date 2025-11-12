@@ -1,4 +1,7 @@
-using FirebaseAdmin.Auth;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using BrainBoostVR_API.Services;
+using System;
 
 namespace BrainBoostVR_API.Middleware
 {
@@ -11,27 +14,47 @@ namespace BrainBoostVR_API.Middleware
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, FirebaseService firebaseService)
         {
-            if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader))
-            {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Missing Authorization header");
-                return;
-            }
-
-            var token = authHeader.ToString().Replace("Bearer ", "");
-
             try
             {
-                var decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
-                context.Items["FirebaseUID"] = decoded.Uid;
+                // Vérifie la présence du header Authorization
+                if (!context.Request.Headers.ContainsKey("Authorization"))
+                {
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync("Authorization header manquant");
+                    return;
+                }
+
+                var tokenHeader = context.Request.Headers["Authorization"].ToString();
+                if (!tokenHeader.StartsWith("Bearer "))
+                {
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync("Format Authorization invalide");
+                    return;
+                }
+
+                var token = tokenHeader.Substring("Bearer ".Length).Trim();
+
+                // Vérification du token via Firebase
+                var uid = await firebaseService.VerifyTokenAsync(token);
+                context.Items["FirebaseUid"] = uid;
+
+                Console.WriteLine($"[Middleware] Token Firebase validé ✅ UID : {uid}");
+
                 await _next(context);
             }
-            catch (Exception)
+            catch (UnauthorizedAccessException ex)
             {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Invalid or expired Firebase token");
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync(ex.Message);
+                Console.WriteLine($"[Middleware] Token invalide ❌ : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                context.Response.StatusCode = 500;
+                await context.Response.WriteAsync("Erreur interne du serveur");
+                Console.WriteLine($"[Middleware] Erreur interne : {ex}");
             }
         }
     }
