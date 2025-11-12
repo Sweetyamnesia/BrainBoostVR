@@ -4,12 +4,16 @@ using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     public FinalGamePanel finalPanel;
-    public GameObject sessionHistoryPanel;
+	public GameObject sessionHistoryPanel;
+	public SessionHistoryPanel sessionHistoryPanelScript;
+
 
     public void ToggleSessionHistory()
     {
-        if (sessionHistoryPanel != null)
-            sessionHistoryPanel.SetActive(!sessionHistoryPanel.activeSelf);
+        if (sessionHistoryPanelScript != null)
+    	{
+        	sessionHistoryPanelScript.OpenPanel();
+    	}
     }
 
     public void RestartGame()
