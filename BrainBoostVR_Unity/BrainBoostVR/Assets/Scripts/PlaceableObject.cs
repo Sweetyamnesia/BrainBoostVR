@@ -25,7 +25,7 @@ public class PlaceableObject : MonoBehaviour
     private void OnRelease(SelectExitEventArgs args)
     {
         // Cherche un hook à proximité
-        Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRadius);
+        Collider[] colliders = Physics.OverlapSphere(transform.position,detectionRadius);
         foreach (var col in colliders)
         {
             HookFinal hook = col.GetComponent<HookFinal>();
