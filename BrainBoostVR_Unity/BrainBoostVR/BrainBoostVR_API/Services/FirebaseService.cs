@@ -10,13 +10,18 @@ namespace BrainBoostVR_API.Services
 
         public FirebaseService()
         {
-            // ✅ Empêche les doublons de FirebaseApp
-            _app = FirebaseApp.DefaultInstance ?? FirebaseApp.Create(new AppOptions
+            // Crée FirebaseApp seulement si aucune instance par défaut
+            if (FirebaseApp.DefaultInstance == null)
             {
-                Credential = GoogleCredential.FromFile(
-                    "/Users/angelarhin/Desktop/BrainBoostVR/BrainBoostVR_Unity/BrainBoostVR/BrainBoostVR_API/Config/brainboostvr-firebase-adminsdk-fbsvc-841d9189b7.json"
-                )
-            });
+                _app = FirebaseApp.Create(new AppOptions
+                {
+                    Credential = GoogleCredential.FromFile("Config/brainboostvr-firebase-adminsdk-fbsvc-841d9189b7.json")
+                });
+            }
+            else
+            {
+                _app = FirebaseApp.DefaultInstance;
+            }
         }
 
         public async Task<string> VerifyTokenAsync(string token)
@@ -24,11 +29,18 @@ namespace BrainBoostVR_API.Services
             try
             {
                 var decoded = await FirebaseAuth.GetAuth(_app).VerifyIdTokenAsync(token);
+                Console.WriteLine($"[Middleware] UID validé : {decoded.Uid}");
                 return decoded.Uid;
             }
-            catch
+            catch (FirebaseAuthException ex)
             {
-                throw new UnauthorizedAccessException("Invalid or expired Firebase token.");
+                Console.WriteLine($"[Middleware] Erreur Firebase : {ex.Message}");
+                throw new UnauthorizedAccessException("Token invalide ou expiré.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Middleware] Erreur inattendue : {ex}");
+                throw new UnauthorizedAccessException("Erreur lors de la validation du token.");
             }
         }
     }
