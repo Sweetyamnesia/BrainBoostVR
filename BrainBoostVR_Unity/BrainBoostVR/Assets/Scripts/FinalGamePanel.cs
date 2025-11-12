@@ -43,7 +43,14 @@ public class FinalGamePanel : MonoBehaviour
     {
         PlayClick();
         if (sessionHistoryPanel != null)
-            sessionHistoryPanel.SetActive(true);
+		{
+			// On récupère le script pour vraiment charger les données
+        	var script = sessionHistoryPanel.GetComponent<SessionHistoryPanel>();
+        	if (script != null)
+            	script.OpenPanel();
+        	else
+            	sessionHistoryPanel.SetActive(true);
+		}
     }
 
     // ======================
