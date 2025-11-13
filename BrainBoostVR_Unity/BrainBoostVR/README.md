@@ -23,17 +23,17 @@
 
 ## Project Overview
 
-**BrainBoostVR** is a virtual reality application designed for cognitive exercises.
+**BrainBoostVR** is a virtual reality application created as a solo portfolio project. Its goal is to offer immersive cognitive exercises that help users improve memory, focus, and spatial awareness.  
 
-The project includes:
+The project combines:
 
-* VR environment with object interaction, locomotion, and tutorials.
-* Real-time scoring and feedback.
-* REST API backend storing users, sessions, exercises, and scores.
-* Integration with Firebase Anonymous Authentication for secure session management.
-* MySQL database for persistent storage.
+* A VR environment with interactive objects and intuitive locomotion.
+* Real-time scoring and feedback for each exercise.
+* A backend API to store users, sessions, exercises, and scores.
+* Firebase Anonymous Authentication for secure session management.
+* Persistent storage via a MySQL database.
 
-This project was implemented solo, following an MVP approach and Agile-inspired sprints.
+The project was developed following an MVP approach with Agile-inspired sprints, ensuring rapid iteration and testing.
 
 ---
 
@@ -59,27 +59,28 @@ git clone https://github.com/YourUsername/BrainBoostVR.git
 cd BrainBoostVR
 ```
 
-2. Open the project in Unity 6.
-3. Ensure XR Plugin Management is installed:
+Open the project in Unity 6.
 
-   * Oculus / OpenXR for Oculus Quest 2.
-4. Open the `Main Scene` or `Menu Scene` and test the VR environment:
+Ensure XR Plugin Management is installed (Oculus / OpenXR for Oculus Quest 2).
 
-   * Locomotion (teleport and joystick)
-   * Object interaction (grab/release)
-   * UI panels and feedback
+Open the Main Scene or Menu Scene and explore the VR environment:
+
+Move with teleport or joystick.
+
+Interact with objects (grab, release).
+
+Follow UI panels for instructions and feedback.
 
 ### 2. Backend API
 
-1. Navigate to the `BrainBoostVR_API` folder.
-2. Restore dependencies:
+Navigate to the BrainBoostVR_API folder.
 
+### 3. Restore dependencies:
 ```bash
 dotnet restore
 ```
 
-3. Configure `appsettings.json` with your MySQL connection:
-
+Configure appsettings.json with your MySQL connection:
 ```json
 {
   "ConnectionStrings": {
@@ -88,17 +89,12 @@ dotnet restore
 }
 ```
 
-4. Run the API locally:
-
+### 4. Run the API locally:
 ```bash
 dotnet run
 ```
 
----
-
 ## Project Structure
-
-```
 BrainBoostVR/
 ├─ Assets/
 │  ├─ Scripts/
@@ -111,16 +107,11 @@ BrainBoostVR/
 │  ├─ Services/
 │  └─ Program.cs
 ├─ README.md
-```
-
----
 
 ## API Endpoints
+Users
 
-### Users
-
-* `POST /api/users` → Create/register a user
-
+POST /api/users → Create/register a user
 ```json
 {
   "firebaseUID": "string",
@@ -128,10 +119,9 @@ BrainBoostVR/
 }
 ```
 
-### Scores
+## Scores
 
-* `POST /api/scores` → Submit a score
-
+POST /api/scores → Submit a score
 ```json
 {
   "userID": 1,
@@ -142,13 +132,11 @@ BrainBoostVR/
   "durationMinutes": 2.5
 }
 ```
+GET /api/scores/{userID} → Retrieve all scores for a user
 
-* `GET /api/scores/{userID}` → Retrieve all scores for a user
+## Sessions
 
-### Sessions
-
-* `POST /api/sessions` → Create a session
-
+POST /api/sessions → Create a session
 ```json
 {
   "userID": 1,
@@ -157,73 +145,48 @@ BrainBoostVR/
   "durationMinutes": 5
 }
 ```
-
-* `GET /api/sessions/{userID}` → Retrieve all sessions for a user
-
----
+GET /api/sessions/{userID} → Retrieve all sessions for a user
 
 ## Database Models
-
-| Model    | Description                                         |
-| -------- | --------------------------------------------------- |
-| User     | Represents a user with `firebaseUID` and `name`     |
-| Score    | Stores exercise results linked to user and exercise |
-| Session  | Tracks VR sessions with start/end time and duration |
-| Exercise | Stores exercise-specific performance metrics        |
-
----
+| Model    | Description                                           |
+| -------- | ----------------------------------------------------- |
+| User     | Stores each user with `firebaseUID` and name          |
+| Score    | Tracks exercise results linked to users and exercises |
+| Session  | Records VR session start/end time and duration        |
+| Exercise | Stores exercise-specific performance metrics          |
 
 ## VR Features & Interactions
-
 ### Locomotion
-
-* Teleport & joystick movement
-* Collision handling with `CharacterController`
+- Teleportation & joystick movement
+- Collision handling via CharacterController
 
 ### Object Interaction
-
-* Grab/release via XR Grab Interactable
-* Feedback for correct/incorrect placements
+- Grab/release using XR Grab Interactable
+- Feedback for correct/incorrect placements
 
 ### UI
-
-* Main Menu (Play, Tutorial, Quit)
-* Tutorial panels with voice instructions & subtitles
-* Score panels updated in real-time
-* End of session feedback
+- Main Menu (Play, Tutorial, Quit)
+- Tutorial panels with voice instructions & subtitles
+- Real-time score panels
+- End-of-session performance summary
 
 ### Audio
-
-* Spatialized environmental sounds
-* Feedback sounds for actions
-
----
+- Spatialized environmental sounds
+- Feedback sounds for user actions
 
 ## Testing
-
 ### VR Manual Tests
-
-* Tested on Oculus Quest 2
-* Object interaction, teleportation, and scoring
+- Tested on Oculus Quest 2
+- Validated object interaction, teleportation, and scoring mechanics
 
 ### API Tests
-
-* Tested endpoints using Postman
-* Verified MySQL storage for users, scores, sessions
+- Postman used to test endpoints
+- Verified MySQL storage for users, scores, sessions
 
 ### Integration
+- Unity ↔ API communication verified
+- Firebase anonymous authentication tested
 
-* Unity → API communication verified
-* Firebase authentication tested for anonymous login
-
----
-
-## Trello Board
-
-* [BrainBoostVR Trello](https://trello.com/invite/b/68c9259b7662ef9076f2547a/ATTId5870ec9e79f1251921aa733dc4183c8F35B15D2/brainboostvr) – Track tasks, sprints, and backlog
-
----
-
-## Contributing
-
-This is a solo project. Contributions are not expected, but feedback and suggestions are welcome via issues.
+### Trello Board
+BrainBoostVR Trello
+ – Track tasks, sprints, and backlog
