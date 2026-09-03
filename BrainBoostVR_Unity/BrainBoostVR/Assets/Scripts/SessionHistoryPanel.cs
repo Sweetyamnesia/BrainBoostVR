@@ -33,9 +33,7 @@ public class SessionHistoryPanel : MonoBehaviour
 		string firebaseUID = FirebaseAnonymousAuth.UserId;
 
 		// Récupère l'historique depuis l'API
-		//var sessions = await ApiClient.GetSessionsAsync(firebaseUID, idToken);
-		var sessions = new ApiClient.UnitySessionDto[0];
-		
+		var sessions = await ApiClient.GetSessionsAsync(firebaseUID, idToken);
 
         if (sessions == null || sessions.Length == 0)
         {

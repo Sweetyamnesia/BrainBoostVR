@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 public static class ApiClient
 {
-    public static string apiBaseUrl = "http://10.5.2.38:5286/api";
+    public static string apiBaseUrl = "http://192.168.1.108:5286/api";
 
     [Serializable]
     public class UnitySessionDto
@@ -84,5 +84,40 @@ public static class ApiClient
 			Debug.Log("[API] Score envoyé avec succès ✅");
 			return true;
 		}
+	}
+
+	// 🔹 Récupération de l'historique des sessions
+	public static async Task<UnitySessionDto[]> GetSessionsAsync(string firebaseUID, string idToken)
+	{
+		using (UnityWebRequest www = UnityWebRequest.Get(
+			$"{apiBaseUrl}/sessions/history/{firebaseUID}"))
+		{
+			www.downloadHandler = new DownloadHandlerBuffer();
+			www.SetRequestHeader("Authorization", $"Bearer {idToken}");
+
+			Debug.Log("[API] Récupération de l'historique des sessions...");
+
+			await www.SendWebRequest();
+
+			if (www.result != UnityWebRequest.Result.Success)
+			{
+				Debug.LogError("[API] Erreur récupération sessions : " + www.error);
+				return new UnitySessionDto[0];
+			}
+
+			string json = www.downloadHandler.text;
+
+			Debug.Log("[API] Historique reçu : " + json);
+
+			return JsonUtility.FromJson<UnitySessionDtoArray>(
+				"{\"items\":" + json + "}"
+			).items;
+		}
+	}
+
+	[Serializable]
+	private class UnitySessionDtoArray
+	{
+		public UnitySessionDto[] items;
 	}
 }
