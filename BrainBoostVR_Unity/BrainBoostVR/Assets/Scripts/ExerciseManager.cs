@@ -33,6 +33,7 @@ public class ExerciseManager : MonoBehaviour
 
     private bool isExerciseRunning = false;
     private float timeRemaining = 0f;
+
     public float maxDuration = 300f;
 
     void Awake()
@@ -41,29 +42,46 @@ public class ExerciseManager : MonoBehaviour
             Debug.LogWarning("[EXERCISE] Aucun objet défini dans la liste.");
 
         foreach (var obj in exerciseObjects)
+        {
             if (obj.objectRef != null)
                 obj.objectRef.SetActive(false);
+        }
     }
 
     public void StartExercise()
     {
+        if (isExerciseRunning)
+        {
+            Debug.LogWarning("[EXERCISE] L'exercice est déjà en cours.");
+            return;
+        }
+
+        // La session doit être active avant de commencer un exercice.
+        if (scoreManager != null)
+        {
+            if (!scoreManager.sessionRunning)
+            {
+                scoreManager.StartSession();
+            }
+
+            scoreManager.StartExercise();
+        }
+
         if (audioSource != null && instructionsAudio != null)
+        {
             StartCoroutine(PlayInstructionsAndStartTimer());
+        }
         else
         {
             ActivateExerciseObjects();
             StartTimer();
         }
-
-        if (scoreManager != null)
-            scoreManager.StartSession();
     }
 
     private IEnumerator PlayInstructionsAndStartTimer()
     {
         audioSource.clip = instructionsAudio;
 
-        // Lancer les sous-titres avant de jouer l'audio
         if (subtitleManager != null)
             subtitleManager.PlaySubtitles(audioSource);
 
@@ -79,24 +97,31 @@ public class ExerciseManager : MonoBehaviour
     {
         timeRemaining = maxDuration;
         isExerciseRunning = true;
+
+        Debug.Log("[EXERCISE] Timer démarré.");
     }
 
     private void ActivateExerciseObjects()
     {
         foreach (var obj in exerciseObjects)
+        {
             if (obj.objectRef != null)
                 obj.objectRef.SetActive(true);
+        }
     }
 
     void Update()
     {
-        if (!isExerciseRunning) return;
+        if (!isExerciseRunning)
+            return;
 
         timeRemaining -= Time.deltaTime;
+
         if (timeRemaining <= 0f)
         {
             timeRemaining = 0f;
             isExerciseRunning = false;
+
             EndExercise();
         }
         else if (scoreManager != null)
@@ -110,10 +135,12 @@ public class ExerciseManager : MonoBehaviour
 
     private void UpdateTimerUI()
     {
-        if (timerText == null) return;
+        if (timerText == null)
+            return;
 
         int minutes = Mathf.FloorToInt(timeRemaining / 60f);
         int seconds = Mathf.FloorToInt(timeRemaining % 60f);
+
         timerText.text = $"{minutes:00}:{seconds:00}";
     }
 
@@ -126,41 +153,48 @@ public class ExerciseManager : MonoBehaviour
         }
 
         isExerciseRunning = false;
+
         EndExercise();
     }
 
-	private void EndExercise()
-	{
-		if (scoreManager != null)
-			scoreManager.EndSession();
+    private void EndExercise()
+    {
+        Debug.Log("[EXERCISE] Fin de l'exercice.");
 
-		if (finalGamePanel != null && scoreManager != null)
-		{
-			int score = scoreManager.score;
-			int errors = scoreManager.errors;
-			float temps = scoreManager.sessionTime;
+        if (scoreManager != null)
+            scoreManager.EndExercise();
 
-			finalGamePanel.DisplayEnd(score, errors, temps);
-		}
-	}
-	
-	public void ResetExercise()
-	{
-		foreach (var obj in exerciseObjects)
-		{
-			if (obj.objectRef != null)
-			{
-				obj.objectRef.transform.position = obj.targetPosition.position; // ou position d'origine sauvegardée
-				obj.objectRef.SetActive(false);
-				obj.isPlacedCorrectly = false;
-			}
-		}
+        if (finalGamePanel != null && scoreManager != null)
+        {
+            int score = scoreManager.score;
+            int errors = scoreManager.errors;
+            float temps = scoreManager.sessionTime;
 
-		if (scoreManager != null)
-			scoreManager.ResetScore();
+            finalGamePanel.DisplayEnd(score, errors, temps);
+        }
+    }
 
-		if (finalGamePanel != null)
-			finalGamePanel.gameObject.SetActive(false);
-	}
+    public void ResetExercise()
+    {
+        foreach (var obj in exerciseObjects)
+        {
+            if (obj.objectRef != null)
+            {
+                obj.objectRef.transform.position = obj.targetPosition.position;
+                obj.objectRef.SetActive(false);
+                obj.isPlacedCorrectly = false;
+            }
+        }
 
+        if (scoreManager != null)
+            scoreManager.ResetScore();
+
+        if (finalGamePanel != null)
+            finalGamePanel.gameObject.SetActive(false);
+
+        isExerciseRunning = false;
+        timeRemaining = 0f;
+
+        Debug.Log("[EXERCISE] Exercice réinitialisé.");
+    }
 }
