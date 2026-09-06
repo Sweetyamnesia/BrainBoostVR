@@ -28,7 +28,8 @@ public static class ApiClient
         public int Errors;
         public float TimeSpent;
         public string Timestamp;
-        public string SessionUid;
+		public string SessionUid;
+		public int ExerciseID;
     }
 
     [Serializable]
