@@ -48,13 +48,15 @@ public class ScoreManager : MonoBehaviour
 
     public void UpdateSessionTime(float time)
     {
-        if (!exerciseRunning) return;
+        if (!exerciseRunning)
+            return;
 
         sessionTime = time;
         sessionTimer = time;
     }
 
     // ---------------- START SESSION ----------------
+
     public async void StartSession()
     {
         // Une session ne doit être créée qu'une seule fois.
@@ -74,7 +76,10 @@ public class ScoreManager : MonoBehaviour
 
             if (user == null)
             {
-                Debug.LogError("[SESSION] Utilisateur Firebase non connecté !");
+                Debug.LogError(
+                    "[SESSION] Utilisateur Firebase non connecté !"
+                );
+
                 sessionRunning = false;
                 return;
             }
@@ -82,47 +87,76 @@ public class ScoreManager : MonoBehaviour
             string firebaseUID = user.UserId;
             string idToken = await user.TokenAsync(false);
 
+            string sessionUid = Guid.NewGuid().ToString();
+
             var dto = new ApiClient.UnitySessionDto
             {
                 FirebaseUID = firebaseUID,
-                SessionUid = Guid.NewGuid().ToString(),
+                SessionUid = sessionUid,
+
+                // La session vient juste de commencer.
                 StartTime = DateTime.Now.ToString("o"),
-                EndTime = DateTime.Now.ToString("o"),
+
+                // La session n'est pas encore terminée.
+                EndTime = string.Empty,
+
                 DurationMinutes = 0f,
                 Score = 0,
                 Errors = 0
             };
 
-            currentSessionId = await ApiClient.CreateOrUpdateSessionAsync(dto, idToken);
+            currentSessionId =
+                await ApiClient.CreateOrUpdateSessionAsync(
+                    dto,
+                    idToken
+                );
 
             if (string.IsNullOrEmpty(currentSessionId))
             {
-                Debug.LogError("[SESSION] Impossible de créer la session côté serveur !");
+                Debug.LogError(
+                    "[SESSION] Impossible de créer la session côté serveur !"
+                );
+
                 sessionRunning = false;
                 return;
             }
 
-            Debug.Log($"[SESSION] Session créée : {currentSessionId}");
+            Debug.Log(
+                $"[SESSION] Session créée : {currentSessionId}"
+            );
         }
         catch (Exception ex)
         {
-            Debug.LogError("[SESSION] Exception lors de StartSession : " + ex.Message);
+            Debug.LogError(
+                "[SESSION] Exception lors de StartSession : " +
+                ex.Message
+            );
+
             sessionRunning = false;
+            currentSessionId = string.Empty;
         }
     }
 
     // ---------------- START EXERCISE ----------------
+
     public void StartExercise()
     {
         if (!sessionRunning)
         {
-            Debug.LogWarning("[EXERCISE] Impossible de démarrer l'exercice : aucune session active.");
+            Debug.LogWarning(
+                "[EXERCISE] Impossible de démarrer l'exercice : " +
+                "aucune session active."
+            );
+
             return;
         }
 
         if (exerciseRunning)
         {
-            Debug.LogWarning("[EXERCISE] Un exercice est déjà en cours.");
+            Debug.LogWarning(
+                "[EXERCISE] Un exercice est déjà en cours."
+            );
+
             return;
         }
 
@@ -135,120 +169,199 @@ public class ScoreManager : MonoBehaviour
 
         OnScoreChanged?.Invoke(score);
 
-        Debug.Log("[EXERCISE] Début de l'exercice");
+        Debug.Log(
+            "[EXERCISE] Début de l'exercice"
+        );
     }
 
     // ---------------- END EXERCISE ----------------
-    public void EndExercise()
-    {
-        if (!exerciseRunning)
-        {
-            Debug.LogWarning("[EXERCISE] Aucun exercice en cours.");
-            return;
-        }
 
-        exerciseRunning = false;
-
-        SessionRecord record = new SessionRecord
-        {
-            score = score,
-            timeSpent = sessionTime,
-            errors = errors,
-            sessionId = currentSessionId,
-            sessionUid = currentSessionId,
-            timestamp = DateTime.UtcNow.ToString("o")
-        };
-
-        sessionHistory.Add(record);
-
-        Debug.Log(
-            $"[EXERCISE] Fin de l'exercice : " +
-            $"Score={score}, Temps={sessionTime:F2}s, Erreurs={errors}"
-        );
-
-        // L'exercice est terminé, MAIS LA SESSION RESTE ACTIVE.
-        OnExerciseFinished?.Invoke(record);
-    }
-
-    // ---------------- END SESSION ----------------
-    public async void EndSession()
+    public async void EndExercise()
 	{
-		if (!sessionRunning)
+		if (!exerciseRunning)
 		{
-			Debug.LogWarning("[SESSION] Aucune session active.");
+			Debug.LogWarning("[EXERCISE] Aucun exercice en cours.");
 			return;
 		}
 
-		var user = FirebaseAuth.DefaultInstance.CurrentUser;
+		exerciseRunning = false;
 
-		if (user == null)
-		{
-			Debug.LogError("[SESSION] Utilisateur Firebase non connecté !");
-			return;
-		}
-
-		if (string.IsNullOrEmpty(currentSessionId))
-		{
-			Debug.LogError(
-				"[SESSION] SessionUid vide. Impossible de terminer la session."
-			);
-			return;
-		}
+		Debug.Log(
+			$"[EXERCISE] Fin de l'exercice : " +
+			$"Score={score}, Temps={sessionTime:F2}s, Erreurs={errors}"
+		);
 
 		try
 		{
+			var user = FirebaseAuth.DefaultInstance.CurrentUser;
+
+			if (user == null)
+			{
+				Debug.LogError(
+					"[EXERCISE] Utilisateur Firebase non connecté !"
+				);
+
+				return;
+			}
+
 			string firebaseUID = user.UserId;
 			string idToken = await user.TokenAsync(false);
 
-			Debug.Log("[SESSION] Fin de la session...");
+			// Pour l'instant, le jeu contient un seul exercice.
+			// L'ExerciseID reste donc toujours 1.
+			const int exerciseID = 1;
 
-			bool success =
-				await ApiClient.CompleteSessionAsync(
+			var scoreDto = new ApiClient.UnityScoreDto
+			{
+				FirebaseUID = firebaseUID,
+				Score = score,
+				Errors = errors,
+				TimeSpent = sessionTime,
+				Timestamp = DateTime.Now.ToString("o"),
+				SessionUid = currentSessionId,
+				ExerciseID = exerciseID
+			};
+
+			bool scoreSent =
+				await ApiClient.SendScoreAsync(
 					firebaseUID,
-					currentSessionId,
-					idToken
+					idToken,
+					scoreDto
 				);
 
-			if (success)
+			if (scoreSent)
 			{
 				Debug.Log(
-					"[SESSION] Session terminée côté serveur ✅"
+					$"[SCORE] Score enregistré avec ExerciseID={exerciseID} ✅"
 				);
-
-				sessionRunning = false;
-				currentSessionId = string.Empty;
 			}
 			else
 			{
 				Debug.LogError(
-					"[SESSION] Impossible de terminer la session côté serveur."
+					"[SCORE] Impossible d'enregistrer le score côté serveur."
 				);
 			}
+
+			SessionRecord record = new SessionRecord
+			{
+				score = score,
+				timeSpent = sessionTime,
+				errors = errors,
+				sessionId = currentSessionId,
+				sessionUid = currentSessionId,
+				timestamp = DateTime.Now.ToString("o")
+			};
+
+			sessionHistory.Add(record);
+
+			OnExerciseFinished?.Invoke(record);
 		}
 		catch (Exception ex)
 		{
 			Debug.LogError(
-				"[SESSION] Erreur lors de la fin de session : " +
+				"[EXERCISE] Erreur lors de l'enregistrement : " +
 				ex.Message
 			);
 		}
 	}
 
+    // ---------------- END SESSION ----------------
+
+    public async void EndSession()
+    {
+        if (!sessionRunning)
+        {
+            Debug.LogWarning(
+                "[SESSION] Aucune session active."
+            );
+
+            return;
+        }
+
+        var user = FirebaseAuth.DefaultInstance.CurrentUser;
+
+        if (user == null)
+        {
+            Debug.LogError(
+                "[SESSION] Utilisateur Firebase non connecté !"
+            );
+
+            return;
+        }
+
+        if (string.IsNullOrEmpty(currentSessionId))
+        {
+            Debug.LogError(
+                "[SESSION] SessionUid vide. " +
+                "Impossible de terminer la session."
+            );
+
+            return;
+        }
+
+        try
+        {
+            string firebaseUID = user.UserId;
+            string idToken = await user.TokenAsync(false);
+
+            Debug.Log(
+                "[SESSION] Fin de la session..."
+            );
+
+            bool success =
+                await ApiClient.CompleteSessionAsync(
+                    firebaseUID,
+                    currentSessionId,
+                    idToken
+                );
+
+            if (success)
+            {
+                Debug.Log(
+                    "[SESSION] Session terminée côté serveur ✅"
+                );
+
+                sessionRunning = false;
+                currentSessionId = string.Empty;
+            }
+            else
+            {
+                Debug.LogError(
+                    "[SESSION] Impossible de terminer " +
+                    "la session côté serveur."
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(
+                "[SESSION] Erreur lors de la fin de session : " +
+                ex.Message
+            );
+        }
+    }
+
     // ---------------- SCORE / ERREURS ----------------
+
     public void AddPoints(int points = 1)
     {
-        if (!exerciseRunning) return;
+        if (!exerciseRunning)
+            return;
 
         score += points;
 
         if (score > maxScore)
             score = maxScore;
 
-        Debug.Log($"[SCORE] Score actuel : {score}/{maxScore}");
+        Debug.Log(
+            $"[SCORE] Score actuel : " +
+            $"{score}/{maxScore}"
+        );
 
         OnScoreChanged?.Invoke(score);
 
-        // Atteindre le score maximum termine uniquement l'exercice.
+        // Atteindre le score maximum termine
+        // uniquement l'exercice.
         if (score >= maxScore)
         {
             EndExercise();
@@ -257,14 +370,18 @@ public class ScoreManager : MonoBehaviour
 
     public void RegisterError()
     {
-        if (!exerciseRunning) return;
+        if (!exerciseRunning)
+            return;
 
         errors++;
 
-        Debug.Log($"[SCORE] Erreurs : {errors}");
+        Debug.Log(
+            $"[SCORE] Erreurs : {errors}"
+        );
     }
 
     // ---------------- RESET EXERCISE ----------------
+
     public void ResetScore()
     {
         score = 0;
@@ -273,7 +390,9 @@ public class ScoreManager : MonoBehaviour
         sessionTimer = 0f;
         exerciseRunning = false;
 
-        Debug.Log("[EXERCISE] Réinitialisation pour un nouvel exercice");
+        Debug.Log(
+            "[EXERCISE] Réinitialisation pour un nouvel exercice"
+        );
 
         OnScoreChanged?.Invoke(score);
     }
