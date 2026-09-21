@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Menu Principal.unity
+    guid: 2d6e943b31ad243fdb66f293bc5c0e8f
+  - enabled: 1
+    path: Assets/Scenes/TutorialScene.unity
+    guid: b64a68de9d3724ccca118f4f64b8b930
+  - enabled: 1
+    path: Assets/Scenes/BrainBoostVR.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 651b6df1251fd4a3d8a8c2e783c80a17,
+      type: 2}
+    com.unity.input.settings: {fileID: 11400000, guid: a7e6d582e4bb84bf584fb2b653b70eb3,
+      type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 88a92f57efe3e46279ce96ed98bbf1e3,
+      type: 3}
+    com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 12569a777274543dbb3276f4e7c62bd3,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 364af108245a54bfc9bffee0bc90e902,
+      type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 27f3deccb7b704b87839d5dbfc04c609,
+      type: 2}
+  m_UseUCBPForAssetBundles: 0
