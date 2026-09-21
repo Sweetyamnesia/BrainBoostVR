@@ -1,5 +1,48 @@
+# =========================
+# Unity generated files
+# =========================
+
+Library/
+Temp/
+Logs/
+Obj/
+Build/
+Builds/
+UserSettings/
+
+# =========================
+# Unity / IDE generated files
+# =========================
+
+.vs/
+.idea/
+*.csproj
+*.csproj.user
+*.suo
+*.user
+
+# =========================
+# Temporary files
+# =========================
+
+.utmp/
+
+# =========================
+# ASP.NET Core generated files
+# =========================
+
+BrainBoostVR_API/bin/
+BrainBoostVR_API/obj/
+
+# =========================
+# Firebase native plugins
+# =========================
+
 Assets/Firebase/Plugins/x86_64/*.bundle
 Assets/Firebase/Plugins/x86_64/*.so
-UserSettings/Layouts/
-BrainBoostVR_API/bin/
+
+# =========================
+# Firebase Admin SDK secret
+# =========================
+
 BrainBoostVR_API/Config/brainboostvr-firebase-adminsdk-fbsvc-841d9189b7.json
