@@ -6,52 +6,96 @@ Immersive VR application for cognitive training through interactive exercises an
 
 ## 💡 Overview
 
-BrainBoostVR is a virtual reality application designed to explore how immersive environments can support cognitive and motor training.  
-It combines XR interaction design, real-time feedback systems, and a backend architecture for data tracking.
+BrainBoostVR is a virtual reality application designed to explore how immersive environments can support cognitive and motor training.
 
-The project was developed as a solo portfolio project with a focus on **XR interaction design, user experience, and system architecture**.
+It combines **XR interaction design, cognitive exercises, real-time feedback, user authentication, and backend data persistence**.
+
+The project was developed as a **solo portfolio project**, with a focus on **XR interaction design, user experience, and system architecture**.
 
 ---
 
 ## ✨ Key Features
 
-- Immersive VR environment for cognitive exercises
-- Object interaction and real-time feedback (visual + audio)
-- Progress tracking system (scores, sessions)
-- Tutorial system to guide first-time users
-- Backend API for data persistence
+* Immersive VR environment for cognitive exercises
+* Interactive object-based exercises
+* Real-time visual and audio feedback
+* Score and session tracking
+* Tutorial system for first-time users
+* Anonymous user authentication
+* Backend API for data persistence
+* Oculus Quest 2 support
 
 ---
 
 ## 🛠 Tech Stack
 
-- Unity (XR Interaction Toolkit)
-- C#
-- Firebase (Anonymous Authentication)
-- .NET REST API
-- MySQL
-- XR devices (Oculus Quest 2)
+* **Unity 6** + XR Interaction Toolkit
+* **C#**
+* **ASP.NET Core / .NET**
+* **Firebase Authentication**
+* **MySQL**
+* **Oculus Quest 2**
+* **Git / GitHub**
+* **Postman**
 
 ---
 
 ## 🏗 Architecture
 
-Unity VR App → REST API (.NET) → MySQL Database  
-                     ↳ Firebase Auth (Anonymous)
+```text
+Oculus Quest 2
+       │
+       ▼
+  Unity VR App
+       │
+    REST API
+       ▼
+ ASP.NET Core API
+    │       │
+    ▼       ▼
+ MySQL   Firebase Auth
+```
+
+Unity handles the **VR experience, interactions, exercises, scoring, and user interface**.
+
+The backend API manages **data persistence and communication with the MySQL database**, while Firebase provides **anonymous authentication**.
+
+---
+
+## 🎥 Demonstration
+
+A visual presentation of BrainBoostVR is available through the project landing page.
+
+👉 **[View the BrainBoostVR Landing Page](https://sweetyamnesia.github.io/brainboostvr-landing/)**
 
 ---
 
 ## 📚 Documentation
 
-Full technical documentation available here:
-- Project overview & research
-- System architecture & API design
-- Risk analysis & MVP scope
+The repository contains three complementary documents covering the project from different perspectives.
 
-👉 See `/portfolio-project/`
+### 📋 Project Overview & Research
+
+**[Stage 1 Report](./portfolio-project/Stage_1_Report.md)**
+
+Covers the project's research, ideation, MVP definition, rejected ideas, risks, and core features.
+
+### 📐 Project Planning
+
+**[Project Charter](./portfolio-project/The_Project_Charter.md)**
+
+Covers the project objectives, scope, stakeholders, risks, and high-level planning.
+
+### ⚙️ Technical Documentation
+
+**[Technical Documentation](./portfolio-project/Technical_documentation.md)**
+
+Covers the system architecture, user stories, Unity and API classes, database design, API specifications, sequence diagrams, SCM, QA, and technical decisions.
+
+For installation, configuration, API usage, and development information, see the **[Unity project README](./BrainBoostVR_Unity/BrainBoostVR/README.md)**.
 
 ---
 
 ## 🚀 Status
 
-MVP completed – ongoing improvements in XR interaction and UX design.
+**MVP completed** – ongoing improvements in XR interaction, UX, performance, and overall project polish.
