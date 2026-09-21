@@ -32,9 +32,15 @@ namespace BrainBoostVR_API.Controllers
             if (!Request.Headers.ContainsKey("Authorization"))
                 return null;
 
-            var token = Request.Headers["Authorization"]
-                .ToString()
-                .Replace("Bearer ", "");
+            var authorization = Request.Headers["Authorization"].ToString();
+
+            if (!authorization.StartsWith("Bearer "))
+                return null;
+
+            var token = authorization.Substring("Bearer ".Length).Trim();
+
+            if (string.IsNullOrWhiteSpace(token))
+                return null;
 
             try
             {
@@ -47,7 +53,20 @@ namespace BrainBoostVR_API.Controllers
         }
 
         // ============================================================
-        // Vérifie si un pseudo existe
+        // Vérifie si un FirebaseUID est autorisé à utiliser un profil
+        // ============================================================
+        private async Task<bool> IsProfileLinkedAsync(
+            string firebaseUid,
+            int userID)
+        {
+            return await _context.FirebaseProfiles
+                .AnyAsync(fp =>
+                    fp.FirebaseUID == firebaseUid &&
+                    fp.UserID == userID);
+        }
+
+        // ============================================================
+        // Vérifie si un pseudo existe dans Users
         // ============================================================
         [HttpGet("check-pseudo")]
         public async Task<IActionResult> CheckPseudoExists(
@@ -56,8 +75,10 @@ namespace BrainBoostVR_API.Controllers
             if (string.IsNullOrWhiteSpace(pseudo))
                 return BadRequest("Pseudo vide");
 
-            bool exists = await _context.Sessions
-                .AnyAsync(s => s.Pseudo == pseudo);
+            var normalizedPseudo = pseudo.Trim();
+
+            bool exists = await _context.Users
+                .AnyAsync(u => u.Name == normalizedPseudo);
 
             return Ok(exists);
         }
@@ -70,6 +91,9 @@ namespace BrainBoostVR_API.Controllers
         public async Task<IActionResult> CreateSession(
             [FromBody] UnitySessionDto dto)
         {
+            if (dto == null)
+                return BadRequest("Payload invalide.");
+
             Console.WriteLine(
                 "[API] 🔹 Reçu POST /api/sessions avec DTO: " +
                 System.Text.Json.JsonSerializer.Serialize(dto)
@@ -81,34 +105,43 @@ namespace BrainBoostVR_API.Controllers
                 return Unauthorized("Invalid or missing Firebase token.");
 
             // --------------------------------------------------------
-            // Recherche de l'utilisateur
+            // Vérification du profil sélectionné
             // --------------------------------------------------------
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.FirebaseUID == firebaseUid);
-
-            // Si l'utilisateur n'existe pas, on le crée
-            if (user == null)
-            {
-                user = new User
-                {
-                    FirebaseUID = firebaseUid,
-                    Name = "Unknown",
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-            }
+            if (dto.UserID <= 0)
+                return BadRequest("UserID est obligatoire.");
 
             // --------------------------------------------------------
             // Vérification du SessionUid
             // --------------------------------------------------------
             if (string.IsNullOrWhiteSpace(dto.SessionUid))
-            {
                 return BadRequest("SessionUid est obligatoire.");
+
+            // --------------------------------------------------------
+            // Vérifie que FirebaseUID peut utiliser ce profil
+            // --------------------------------------------------------
+            bool profileLinked = await IsProfileLinkedAsync(
+                firebaseUid,
+                dto.UserID);
+
+            if (!profileLinked)
+            {
+                return Unauthorized(
+                    "Ce profil n'est pas associé à cette identité Firebase."
+                );
             }
 
+            // --------------------------------------------------------
+            // Recherche du profil
+            // --------------------------------------------------------
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserID == dto.UserID);
+
+            if (user == null)
+                return NotFound("Profil utilisateur introuvable.");
+
+            // --------------------------------------------------------
             // Évite de créer deux fois exactement la même session
+            // --------------------------------------------------------
             var existingSession = await _context.Sessions
                 .FirstOrDefaultAsync(s =>
                     s.SessionUid == dto.SessionUid &&
@@ -117,14 +150,17 @@ namespace BrainBoostVR_API.Controllers
             if (existingSession != null)
             {
                 Console.WriteLine(
-                    $"[API] ⚠️ Session déjà existante : {existingSession.SessionUid}"
+                    $"[API] ⚠️ Session déjà existante : " +
+                    $"{existingSession.SessionUid}"
                 );
 
                 return Ok(new
                 {
                     status = "already_exists",
                     sessionUid = existingSession.SessionUid,
-                    user = user.FirebaseUID,
+                    userID = user.UserID,
+                    firebaseUID = firebaseUid,
+                    pseudo = user.Name,
                     startedAt = existingSession.StartTime
                 });
             }
@@ -135,9 +171,11 @@ namespace BrainBoostVR_API.Controllers
             DateTime startTime;
 
             if (!string.IsNullOrWhiteSpace(dto.StartTime) &&
-                DateTimeOffset.TryParse(dto.StartTime, out var parsedStartTime))
+                DateTimeOffset.TryParse(
+                    dto.StartTime,
+                    out var parsedStartTime))
             {
-                startTime = parsedStartTime.DateTime;
+                startTime = parsedStartTime.UtcDateTime;
             }
             else
             {
@@ -150,12 +188,16 @@ namespace BrainBoostVR_API.Controllers
             var session = new Session
             {
                 UserID = user.UserID,
+
+                // Ces informations sont enregistrées comme historique
+                // au moment de la création de la session.
                 FirebaseUID = firebaseUid,
+                Pseudo = user.Name,
+
                 SessionUid = dto.SessionUid,
 
                 StartTime = startTime,
 
-                // Une session nouvellement créée n'est pas terminée
                 EndTime = null,
                 DurationMinutes = null,
 
@@ -170,7 +212,9 @@ namespace BrainBoostVR_API.Controllers
 
                 Console.WriteLine(
                     $"[API] ✅ Session enregistrée OK " +
-                    $"(SessionUid={session.SessionUid})"
+                    $"(SessionUid={session.SessionUid}, " +
+                    $"UserID={session.UserID}, " +
+                    $"Pseudo={session.Pseudo})"
                 );
             }
             catch (Exception ex)
@@ -190,7 +234,9 @@ namespace BrainBoostVR_API.Controllers
             {
                 status = "success",
                 sessionUid = session.SessionUid,
-                user = user.FirebaseUID,
+                userID = user.UserID,
+                firebaseUID = firebaseUid,
+                pseudo = user.Name,
                 startedAt = session.StartTime
             });
         }
@@ -203,6 +249,9 @@ namespace BrainBoostVR_API.Controllers
         public async Task<IActionResult> CompleteSession(
             [FromBody] UnitySessionCompleteDto dto)
         {
+            if (dto == null)
+                return BadRequest("Payload invalide.");
+
             Console.WriteLine(
                 "[API] 🔹 Reçu POST /api/sessions/complete"
             );
@@ -215,21 +264,39 @@ namespace BrainBoostVR_API.Controllers
                 );
 
             // --------------------------------------------------------
+            // Vérification du profil sélectionné
+            // --------------------------------------------------------
+            if (dto.UserID <= 0)
+                return BadRequest("UserID est obligatoire.");
+
+            // --------------------------------------------------------
             // Vérification du SessionUid
             // --------------------------------------------------------
             if (string.IsNullOrWhiteSpace(dto.SessionUid))
-            {
                 return BadRequest("SessionUid est obligatoire.");
+
+            // --------------------------------------------------------
+            // Vérifie que FirebaseUID peut utiliser ce profil
+            // --------------------------------------------------------
+            bool profileLinked = await IsProfileLinkedAsync(
+                firebaseUid,
+                dto.UserID);
+
+            if (!profileLinked)
+            {
+                return Unauthorized(
+                    "Ce profil n'est pas associé à cette identité Firebase."
+                );
             }
 
             // --------------------------------------------------------
-            // Recherche de l'utilisateur
+            // Recherche du profil
             // --------------------------------------------------------
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.FirebaseUID == firebaseUid);
+                .FirstOrDefaultAsync(u => u.UserID == dto.UserID);
 
             if (user == null)
-                return NotFound("User not found");
+                return NotFound("Profil utilisateur introuvable.");
 
             // --------------------------------------------------------
             // Recherche de la session existante
@@ -270,18 +337,44 @@ namespace BrainBoostVR_API.Controllers
             // --------------------------------------------------------
             // Fin de session
             // --------------------------------------------------------
-            session.EndTime = DateTime.Now;
+            session.EndTime = DateTime.UtcNow;
 
-            // Sécurité si StartTime est null
-            if (!session.StartTime.HasValue)
-            {
-                session.StartTime = session.EndTime.Value;
-            }
+			if (!session.StartTime.HasValue)
+			{
+				session.StartTime = session.EndTime.Value;
+			}
 
-            // Calcul de la durée totale de la SESSION
-            session.DurationMinutes =
-                (float?)(session.EndTime - session.StartTime)
-                ?.TotalMinutes;
+			session.DurationMinutes =
+				(float?)(session.EndTime - session.StartTime)
+				?.TotalMinutes;
+
+			// --------------------------------------------------------
+			// Récupération du score associé à cette session
+			// --------------------------------------------------------
+			var sessionScore = await _context.Scores
+				.Where(s =>
+					s.UserID == dto.UserID &&
+					s.SessionUid == dto.SessionUid)
+				.OrderByDescending(s => s.Timestamp)
+				.FirstOrDefaultAsync();
+
+			if (sessionScore != null)
+			{
+				session.Score = sessionScore.Value ?? 0;
+				session.Errors = sessionScore.Errors ?? 0;
+
+				Console.WriteLine(
+					$"[SESSION] Score récupéré pour la session : " +
+					$"Score={session.Score}, " +
+					$"Errors={session.Errors}"
+				);
+			}
+			else
+			{
+				Console.WriteLine(
+					"[SESSION] Aucun score trouvé pour cette session."
+				);
+			}
 
             try
             {
@@ -317,32 +410,57 @@ namespace BrainBoostVR_API.Controllers
 
         // ============================================================
         // RÉCUPÉRER L'HISTORIQUE DES SESSIONS
-        // GET /api/sessions/history/{firebaseUID}
+        // GET /api/sessions/history/{userID}
         // ============================================================
-        [HttpGet("history/{firebaseUID}")]
+        [HttpGet("history/{userID}")]
         public async Task<IActionResult> GetSessionHistory(
-            string firebaseUID)
+            int userID)
         {
-            var uid = await VerifyAndGetUidAsync();
+            var firebaseUid = await VerifyAndGetUidAsync();
 
-            if (uid == null || uid != firebaseUID)
+            if (firebaseUid == null)
             {
                 return Unauthorized(
                     "Invalid or missing Firebase token."
                 );
             }
 
+            if (userID <= 0)
+                return BadRequest("UserID invalide.");
+
+            // --------------------------------------------------------
+            // Vérifie que FirebaseUID peut consulter ce profil
+            // --------------------------------------------------------
+            bool profileLinked = await IsProfileLinkedAsync(
+                firebaseUid,
+                userID);
+
+            if (!profileLinked)
+            {
+                return Unauthorized(
+                    "Ce profil n'est pas associé à cette identité Firebase."
+                );
+            }
+
+            // --------------------------------------------------------
+            // Vérifie que le profil existe
+            // --------------------------------------------------------
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.FirebaseUID == firebaseUID);
+                .FirstOrDefaultAsync(u => u.UserID == userID);
 
             if (user == null)
                 return NotFound("User not found");
 
+            // --------------------------------------------------------
+            // Historique du profil
+            // --------------------------------------------------------
             var sessions = await _context.Sessions
-                .Where(s => s.UserID == user.UserID)
+                .Where(s => s.UserID == userID)
                 .OrderByDescending(s => s.StartTime)
                 .Select(s => new UnitySessionDto
                 {
+                    UserID = s.UserID,
+
                     FirebaseUID = s.FirebaseUID ?? "",
 
                     SessionUid = s.SessionUid,
@@ -359,7 +477,7 @@ namespace BrainBoostVR_API.Controllers
                         s.DurationMinutes ?? 0f,
 
                     Score = s.Score,
-					Errors = s.Errors
+                    Errors = s.Errors
                 })
                 .ToArrayAsync();
 
@@ -372,6 +490,8 @@ namespace BrainBoostVR_API.Controllers
     // ================================================================
     public class UnitySessionDto
     {
+        public int UserID { get; set; }
+
         public string FirebaseUID { get; set; } = string.Empty;
 
         public string SessionUid { get; set; } = string.Empty;
@@ -392,6 +512,8 @@ namespace BrainBoostVR_API.Controllers
     // ================================================================
     public class UnitySessionCompleteDto
     {
+        public int UserID { get; set; }
+
         public string FirebaseUID { get; set; } = string.Empty;
 
         public string SessionUid { get; set; } = string.Empty;

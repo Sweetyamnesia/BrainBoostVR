@@ -11,5 +11,6 @@ namespace BrainBoostVR_API.Data
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Score> Scores { get; set; }
         public DbSet<Session> Sessions { get; set; }
+		public DbSet<FirebaseProfile> FirebaseProfiles { get; set; }
     }
 }

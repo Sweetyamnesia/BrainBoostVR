@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using Firebase.Auth;
 
@@ -55,24 +56,46 @@ public class ScoreManager : MonoBehaviour
         sessionTimer = time;
     }
 
-    // ---------------- START SESSION ----------------
+    // ============================================================
+    // START SESSION
+    // ============================================================
 
     public async void StartSession()
     {
         // Une session ne doit être créée qu'une seule fois.
         if (sessionRunning)
         {
-            Debug.Log("[SESSION] Une session est déjà en cours.");
+            Debug.Log(
+                "[SESSION] Une session est déjà en cours."
+            );
+
+            return;
+        }
+
+        // --------------------------------------------------------
+        // Vérification du profil sélectionné
+        // --------------------------------------------------------
+        if (MainMenu.CurrentUserID <= 0)
+        {
+            Debug.LogError(
+                "[SESSION] Aucun profil de jeu sélectionné."
+            );
+
             return;
         }
 
         sessionRunning = true;
 
-        Debug.Log("[SESSION] Début de la session");
+        Debug.Log(
+            $"[SESSION] Début de la session " +
+            $"pour UserID={MainMenu.CurrentUserID}, " +
+            $"Pseudo={MainMenu.CurrentUserName}"
+        );
 
         try
         {
-            var user = FirebaseAuth.DefaultInstance.CurrentUser;
+            var user =
+                FirebaseAuth.DefaultInstance.CurrentUser;
 
             if (user == null)
             {
@@ -85,23 +108,30 @@ public class ScoreManager : MonoBehaviour
             }
 
             string firebaseUID = user.UserId;
-            string idToken = await user.TokenAsync(false);
 
-            string sessionUid = Guid.NewGuid().ToString();
+            string idToken =
+                await user.TokenAsync(false);
+
+            string sessionUid =
+                Guid.NewGuid().ToString();
 
             var dto = new ApiClient.UnitySessionDto
             {
+                UserID = MainMenu.CurrentUserID,
+
                 FirebaseUID = firebaseUID,
+
                 SessionUid = sessionUid,
 
-                // La session vient juste de commencer.
-                StartTime = DateTime.Now.ToString("o"),
+                StartTime =
+                    DateTime.Now.ToString("o"),
 
-                // La session n'est pas encore terminée.
                 EndTime = string.Empty,
 
                 DurationMinutes = 0f,
+
                 Score = 0,
+
                 Errors = 0
             };
 
@@ -114,7 +144,8 @@ public class ScoreManager : MonoBehaviour
             if (string.IsNullOrEmpty(currentSessionId))
             {
                 Debug.LogError(
-                    "[SESSION] Impossible de créer la session côté serveur !"
+                    "[SESSION] Impossible de créer " +
+                    "la session côté serveur !"
                 );
 
                 sessionRunning = false;
@@ -122,7 +153,8 @@ public class ScoreManager : MonoBehaviour
             }
 
             Debug.Log(
-                $"[SESSION] Session créée : {currentSessionId}"
+                $"[SESSION] Session créée : " +
+                $"{currentSessionId}"
             );
         }
         catch (Exception ex)
@@ -137,7 +169,9 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    // ---------------- START EXERCISE ----------------
+    // ============================================================
+    // START EXERCISE
+    // ============================================================
 
     public void StartExercise()
     {
@@ -174,100 +208,138 @@ public class ScoreManager : MonoBehaviour
         );
     }
 
-    // ---------------- END EXERCISE ----------------
+    // ============================================================
+    // END EXERCISE
+    // ============================================================
 
-    public async void EndExercise()
-	{
-		if (!exerciseRunning)
-		{
-			Debug.LogWarning("[EXERCISE] Aucun exercice en cours.");
-			return;
-		}
+    public async Task EndExerciseAsync()
+    {
+        if (!exerciseRunning)
+        {
+            Debug.LogWarning(
+                "[EXERCISE] Aucun exercice en cours."
+            );
 
-		exerciseRunning = false;
+            return;
+        }
 
-		Debug.Log(
-			$"[EXERCISE] Fin de l'exercice : " +
-			$"Score={score}, Temps={sessionTime:F2}s, Erreurs={errors}"
-		);
+        exerciseRunning = false;
 
-		try
-		{
-			var user = FirebaseAuth.DefaultInstance.CurrentUser;
+        Debug.Log(
+            $"[EXERCISE] Fin de l'exercice : " +
+            $"Score={score}, " +
+            $"Temps={sessionTime:F2}s, " +
+            $"Erreurs={errors}"
+        );
 
-			if (user == null)
-			{
-				Debug.LogError(
-					"[EXERCISE] Utilisateur Firebase non connecté !"
-				);
+        try
+        {
+            var user =
+                FirebaseAuth.DefaultInstance.CurrentUser;
 
-				return;
-			}
+            if (user == null)
+            {
+                Debug.LogError(
+                    "[EXERCISE] Utilisateur Firebase non connecté !"
+                );
 
-			string firebaseUID = user.UserId;
-			string idToken = await user.TokenAsync(false);
+                return;
+            }
 
-			// Pour l'instant, le jeu contient un seul exercice.
-			// L'ExerciseID reste donc toujours 1.
-			const int exerciseID = 1;
+            if (MainMenu.CurrentUserID <= 0)
+            {
+                Debug.LogError(
+                    "[EXERCISE] Aucun profil de jeu sélectionné !"
+                );
 
-			var scoreDto = new ApiClient.UnityScoreDto
-			{
-				FirebaseUID = firebaseUID,
-				Score = score,
-				Errors = errors,
-				TimeSpent = sessionTime,
-				Timestamp = DateTime.Now.ToString("o"),
-				SessionUid = currentSessionId,
-				ExerciseID = exerciseID
-			};
+                return;
+            }
 
-			bool scoreSent =
-				await ApiClient.SendScoreAsync(
-					firebaseUID,
-					idToken,
-					scoreDto
-				);
+            string firebaseUID = user.UserId;
 
-			if (scoreSent)
-			{
-				Debug.Log(
-					$"[SCORE] Score enregistré avec ExerciseID={exerciseID} ✅"
-				);
-			}
-			else
-			{
-				Debug.LogError(
-					"[SCORE] Impossible d'enregistrer le score côté serveur."
-				);
-			}
+            string idToken =
+                await user.TokenAsync(false);
 
-			SessionRecord record = new SessionRecord
-			{
-				score = score,
-				timeSpent = sessionTime,
-				errors = errors,
-				sessionId = currentSessionId,
-				sessionUid = currentSessionId,
-				timestamp = DateTime.Now.ToString("o")
-			};
+            // Pour l'instant, le jeu contient un seul exercice.
+            const int exerciseID = 1;
 
-			sessionHistory.Add(record);
+            var scoreDto = new ApiClient.UnityScoreDto
+            {
+                UserID = MainMenu.CurrentUserID,
 
-			OnExerciseFinished?.Invoke(record);
-		}
-		catch (Exception ex)
-		{
-			Debug.LogError(
-				"[EXERCISE] Erreur lors de l'enregistrement : " +
-				ex.Message
-			);
-		}
-	}
+                FirebaseUID = firebaseUID,
 
-    // ---------------- END SESSION ----------------
+                Score = score,
 
-    public async void EndSession()
+                Errors = errors,
+
+                TimeSpent = sessionTime,
+
+                Timestamp =
+                    DateTime.Now.ToString("o"),
+
+                SessionUid = currentSessionId,
+
+                ExerciseID = exerciseID
+            };
+
+            bool scoreSent =
+                await ApiClient.SendScoreAsync(
+                    firebaseUID,
+                    idToken,
+                    scoreDto
+                );
+
+            if (scoreSent)
+            {
+                Debug.Log(
+                    $"[SCORE] Score enregistré pour " +
+                    $"UserID={MainMenu.CurrentUserID}, " +
+                    $"ExerciseID={exerciseID} ✅"
+                );
+            }
+            else
+            {
+                Debug.LogError(
+                    "[SCORE] Impossible d'enregistrer " +
+                    "le score côté serveur."
+                );
+            }
+
+            SessionRecord record = new SessionRecord
+            {
+                score = score,
+
+                timeSpent = sessionTime,
+
+                errors = errors,
+
+                sessionId = currentSessionId,
+
+                sessionUid = currentSessionId,
+
+                timestamp =
+                    DateTime.Now.ToString("o")
+            };
+
+            sessionHistory.Add(record);
+
+            OnExerciseFinished?.Invoke(record);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(
+                "[EXERCISE] Erreur lors de l'enregistrement : " +
+                ex.Message
+            );
+        }
+    }
+
+    // ============================================================
+    // END SESSION
+    // ============================================================
+
+    public async Task EndSessionAsync()
     {
         if (!sessionRunning)
         {
@@ -278,12 +350,22 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        var user = FirebaseAuth.DefaultInstance.CurrentUser;
+        var user =
+            FirebaseAuth.DefaultInstance.CurrentUser;
 
         if (user == null)
         {
             Debug.LogError(
                 "[SESSION] Utilisateur Firebase non connecté !"
+            );
+
+            return;
+        }
+
+        if (MainMenu.CurrentUserID <= 0)
+        {
+            Debug.LogError(
+                "[SESSION] Aucun profil de jeu sélectionné."
             );
 
             return;
@@ -302,14 +384,18 @@ public class ScoreManager : MonoBehaviour
         try
         {
             string firebaseUID = user.UserId;
-            string idToken = await user.TokenAsync(false);
+
+            string idToken =
+                await user.TokenAsync(false);
 
             Debug.Log(
-                "[SESSION] Fin de la session..."
+                $"[SESSION] Fin de la session " +
+                $"pour UserID={MainMenu.CurrentUserID}..."
             );
 
             bool success =
                 await ApiClient.CompleteSessionAsync(
+                    MainMenu.CurrentUserID,
                     firebaseUID,
                     currentSessionId,
                     idToken
@@ -318,7 +404,8 @@ public class ScoreManager : MonoBehaviour
             if (success)
             {
                 Debug.Log(
-                    "[SESSION] Session terminée côté serveur ✅"
+                    "[SESSION] Session terminée " +
+                    "côté serveur ✅"
                 );
 
                 sessionRunning = false;
@@ -341,7 +428,9 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    // ---------------- SCORE / ERREURS ----------------
+    // ============================================================
+    // SCORE / ERREURS
+    // ============================================================
 
     public void AddPoints(int points = 1)
     {
@@ -364,7 +453,7 @@ public class ScoreManager : MonoBehaviour
         // uniquement l'exercice.
         if (score >= maxScore)
         {
-            EndExercise();
+            _ = EndExerciseAsync();
         }
     }
 
@@ -380,7 +469,9 @@ public class ScoreManager : MonoBehaviour
         );
     }
 
-    // ---------------- RESET EXERCISE ----------------
+    // ============================================================
+    // RESET EXERCISE
+    // ============================================================
 
     public void ResetScore()
     {

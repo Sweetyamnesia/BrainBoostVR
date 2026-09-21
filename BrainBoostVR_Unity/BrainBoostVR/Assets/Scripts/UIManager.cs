@@ -37,7 +37,7 @@ public class UIManager : MonoBehaviour
 
 		if (scoreManager != null && scoreManager.sessionRunning)
 		{
-			scoreManager.EndSession();
+			_ = scoreManager.EndSessionAsync();
 		}
 		else
 		{
