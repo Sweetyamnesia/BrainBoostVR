@@ -1,13 +1,26 @@
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Mm]emoryCaptures/
+# =========================
+# Unity generated files
+# =========================
+
+BrainBoostVR_Unity/BrainBoostVR/Library/
+BrainBoostVR_Unity/BrainBoostVR/Temp/
+BrainBoostVR_Unity/BrainBoostVR/Obj/
+BrainBoostVR_Unity/BrainBoostVR/Build/
+BrainBoostVR_Unity/BrainBoostVR/Builds/
+BrainBoostVR_Unity/BrainBoostVR/Logs/
+BrainBoostVR_Unity/BrainBoostVR/MemoryCaptures/
+BrainBoostVR_Unity/BrainBoostVR/UserSettings/
+
+# =========================
+# Unity / IDE generated files
+# =========================
+
+.vs/
+.idea/
 *.csproj
+*.csproj.user
 *.unityproj
-*.sln
+*.suo
 *.user
 *.pidb
 *.booproj
@@ -17,6 +30,33 @@
 *.opendb
 *.VC.db
 *.pidb.meta
+
+# =========================
+# Temporary / OS files
+# =========================
+
+.utmp/
 .DS_Store
 *.apk
 .fakebrainboost-clean/
+
+# =========================
+# ASP.NET Core generated files
+# =========================
+
+BrainBoostVR_Unity/BrainBoostVR/BrainBoostVR_API/bin/
+BrainBoostVR_Unity/BrainBoostVR/BrainBoostVR_API/obj/
+
+# =========================
+# Firebase native plugins
+# =========================
+
+BrainBoostVR_Unity/BrainBoostVR/Assets/Firebase/Plugins/x86_64/*.bundle
+BrainBoostVR_Unity/BrainBoostVR/Assets/Firebase/Plugins/x86_64/*.so
+
+# =========================
+# Firebase Admin SDK secret
+# =========================
+
+BrainBoostVR_Unity/BrainBoostVR/BrainBoostVR_API/Config/brainboostvr-firebase-adminsdk-fbsvc-841d9189b7.json
+*.sln
